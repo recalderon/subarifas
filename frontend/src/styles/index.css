@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-peach: #FFB4A2;
+    --color-mint: #B5EAD7;
+    --color-coral: #FF9AA2;
+    --color-cream: #FFF8F0;
+    --color-warm-gray: #6B5B5B;
+  }
+
+  body {
+    @apply bg-cream text-warmGray font-sans;
+    min-height: 100vh;
+  }
+
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .glass-strong {
+    @apply bg-white/90 backdrop-blur-lg border border-white/30;
+  }
+
+  /* Button styles */
+  .btn {
+    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-300 shadow-soft;
+  }
+
+  .btn-primary {
+    @apply bg-coral text-white hover:bg-coral-dark hover:shadow-soft-lg active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-mint text-warmGray hover:bg-mint-dark hover:shadow-soft-lg active:scale-95;
+  }
+
+  .btn-outline {
+    @apply border-2 border-coral text-coral hover:bg-coral hover:text-white;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-white rounded-3xl shadow-soft p-6 hover:shadow-soft-lg transition-shadow duration-300;
+  }
+
+  .card-glass {
+    @apply glass rounded-3xl shadow-soft p-6 hover:shadow-soft-lg transition-all duration-300;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 rounded-2xl border-2 border-mint/30 focus:border-coral focus:outline-none bg-white/50 backdrop-blur-sm transition-all;
+  }
+
+  /* Number button states */
+  .number-btn {
+    @apply w-12 h-12 rounded-xl font-semibold transition-all duration-200 shadow-sm;
+  }
+
+  .number-available {
+    @apply bg-mint text-warmGray hover:bg-mint-dark hover:scale-110 cursor-pointer;
+  }
+
+  .number-selected {
+    @apply bg-coral text-white hover:bg-coral-dark hover:scale-110 cursor-pointer;
+  }
+
+  .number-taken {
+    @apply bg-gray-200 text-gray-400 cursor-not-allowed;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-coral to-peach bg-clip-text text-transparent;
+  }
+
+  .bg-summer {
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFE8D8 50%, #FFD4C8 100%);
+  }
+
+  .bg-wave {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23FFB4A2' fill-opacity='0.1' d='M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: bottom;
+    background-size: cover;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
