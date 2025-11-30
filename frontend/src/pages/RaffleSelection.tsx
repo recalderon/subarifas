@@ -71,8 +71,14 @@ const RaffleSelection: React.FC = () => {
         });
         
         setAvailableNumbers(response.data.availableNumbers);
-      } catch (err) {
-        console.error('Polling error:', err);
+      } catch (err: any) {
+        // If the raffle no longer exists on the server, stop polling and navigate away.
+        if (err?.response?.status === 404) {
+          console.warn('Raffle not found during polling');
+          navigate('/');
+          return;
+        }
+        console.error('Polling error:', err?.response?.data || err?.message || err);
       }
     }, 3000); // Poll every 3 seconds
 
@@ -97,8 +103,12 @@ const RaffleSelection: React.FC = () => {
       const response = await raffleAPI.getAvailable(id!, currentPage);
       setAvailableNumbers(response.data.availableNumbers);
       setTakenNumbers(response.data.takenNumbers);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Error fetching available numbers:', (err as any)?.response?.data || err.message || err);
+      if ((err as any)?.response?.status === 404) {
+        alert('Rifa não encontrada');
+        navigate('/');
+      }
     }
   };
 
@@ -118,18 +128,16 @@ const RaffleSelection: React.FC = () => {
 
     setSubmitting(true);
 
-
     try {
       // Generate a unique receipt ID for this batch
       const receiptId = crypto.randomUUID();
 
-      // Submit all selected numbers in a single batch
+      // Build a numbers array to submit in a single request
+      const numbers = selectedNumbers.map(n => ({ number: n, pageNumber: currentPage }));
+
       await selectionAPI.create(id!, {
         receiptId,
-        numbers: selectedNumbers.map(number => ({
-          number,
-          pageNumber: currentPage,
-        })),
+        numbers,
         user: {
           xHandle: data.xHandle,
           instagramHandle: data.instagramHandle,
@@ -143,7 +151,9 @@ const RaffleSelection: React.FC = () => {
         navigate(`/receipt/${receiptId}`);
       }, 2000);
     } catch (err: any) {
-      alert(err.response?.data?.error || 'Erro ao reservar números');
+      // If server reports an error, show it (422 validation errors often return payload with message)
+      const message = err?.response?.data?.error || err?.message || 'Erro ao reservar números';
+      alert(message);
       loadAvailableNumbers(); // Reload to get updated numbers
     } finally {
       setSubmitting(false);
