@@ -22,10 +22,20 @@ const Receipt: React.FC = () => {
 
   const loadReceipt = async () => {
     try {
+      console.log('Loading receipt for ID:', id);
       const response = await selectionAPI.getReceipt(id!);
-      setSelections(response.data);
+      console.log('Receipt response:', response);
+      console.log('Receipt data:', response.data);
+      
+      if (Array.isArray(response.data)) {
+        setSelections(response.data);
+      } else {
+        console.error('Data is not an array:', response.data);
+        // Handle case where data might be wrapped
+        setSelections(response.data.selections || []);
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Error loading receipt:', err);
       setError('Recibo não encontrado');
     } finally {
       setLoading(false);
