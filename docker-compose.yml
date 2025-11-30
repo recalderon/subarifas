@@ -1,10 +1,11 @@
-services:
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
+# Local MongoDB removed in favor of MongoDB Atlas
+# services:
+#   mongodb:
+#     image: mongo:latest
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongodb_data:/data/db
 
-volumes:
-  mongodb_data:
+# volumes:
+#   mongodb_data:
