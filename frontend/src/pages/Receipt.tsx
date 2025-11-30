@@ -203,146 +203,156 @@ const Receipt: React.FC = () => {
             </button>
           </div>
 
-          {/* Ticket Details */}
-          <div className="bg-white/50 rounded-xl p-6 mb-6 border border-white/40">
-            <h3 className="text-lg font-bold text-warmGray mb-4 flex items-center">
-              <FontAwesomeIcon icon={faTicketAlt} className="mr-2 text-coral" />
-              Detalhes da Rifa
-            </h3>
-            
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs text-warmGray-light uppercase tracking-wider">Rifa</p>
-                <p className="font-semibold text-warmGray">{raffle.title}</p>
-              </div>
-              
-              <div>
-                <p className="text-xs text-warmGray-light uppercase tracking-wider">Data da Reserva</p>
-                <p className="font-semibold text-warmGray flex items-center">
-                  <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-warmGray-light text-xs" />
-                  {formatDate(firstSelection.selectedAt)}
-                </p>
-              </div>
 
-              <div>
-                <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">Números Selecionados ({selections.length})</p>
-                <div className="flex flex-wrap gap-2">
-                  {selections.map((s: any) => (
-                    <span key={s._id} className="bg-coral text-white px-3 py-1 rounded-full font-bold text-sm shadow-sm">
-                      {s.number}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* User Info */}
-          <div className="bg-white/50 rounded-xl p-6 mb-8 border border-white/40">
-            <h3 className="text-lg font-bold text-warmGray mb-4 flex items-center">
-              <FontAwesomeIcon icon={faUser} className="mr-2 text-coral" />
-              Seus Dados
-            </h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-warmGray-light uppercase tracking-wider">Contato Principal</p>
-                <p className="font-semibold text-warmGray flex items-center capitalize">
-                  <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2" />
-                  {user.preferredContact}
-                </p>
-              </div>
-              
-              {user.whatsapp && (
-                <div>
-                  <p className="text-xs text-warmGray-light uppercase tracking-wider">WhatsApp</p>
-                  <p className="font-semibold text-warmGray">{user.whatsapp}</p>
-                </div>
-              )}
-              
-              {user.instagramHandle && (
-                <div>
-                  <p className="text-xs text-warmGray-light uppercase tracking-wider">Instagram</p>
-                  <p className="font-semibold text-warmGray">{user.instagramHandle}</p>
-                </div>
-              )}
-
-              {user.xHandle && (
-                <div>
-                  <p className="text-xs text-warmGray-light uppercase tracking-wider">X / Twitter</p>
-                  <p className="font-semibold text-warmGray">{user.xHandle}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* PIX Payment Instruction */}
-          <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40 mt-4">
-            <h3 className="text-lg font-bold text-warmGray mb-2">Pagamento via PIX</h3>
-            <p className="text-warmGray-light mb-4">
-              Para finalizar, envie um PIX no valor de <strong>R$ { (selections.length * (raffle.price || 0)).toFixed(2) }</strong> para a seguinte chave <strong>{raffle.pixKey}</strong> no nome de <strong>{raffle.pixName}</strong>.
-            </p>
-            <p className="text-sm text-warmGray-light mb-4">O tempo limite para realizar o pagamento é de 30 minutos.</p>
-            {raffle.pixQRCode && (
-              <div className="text-center">
-                <img src={raffle.pixQRCode} alt="PIX QR Code" className="mx-auto h-40 w-auto" />
-              </div>
-            )}
-          </div>
-
-          {/* Upload Receipt Section */}
-          <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40">
-            <h3 className="text-lg font-bold text-warmGray mb-4">Enviar Comprovante</h3>
-            
-            {uploadSuccess || (receipt && (receipt.status === 'receipt_uploaded' || receipt.status === 'paid')) ? (
-              <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
-                <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
-                <p className="font-semibold">
-                  {receipt?.status === 'paid' ? 'Pagamento Confirmado!' : 'Comprovante Enviado!'}
-                </p>
-                <p className="text-sm">
-                  {receipt?.status === 'paid' 
-                    ? 'Seus números estão garantidos.' 
-                    : 'Aguarde a confirmação do administrador.'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-warmGray-light text-sm">
-                  Após realizar o pagamento, envie o comprovante aqui para agilizar a confirmação.
-                </p>
+          {/* Two Column Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Column - Data */}
+            <div className="space-y-6">
+              {/* Ticket Details */}
+              <div className="bg-white/50 rounded-xl p-6 border border-white/40">
+                <h3 className="text-lg font-bold text-warmGray mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faTicketAlt} className="mr-2 text-coral" />
+                  Detalhes da Rifa
+                </h3>
                 
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept="image/*,.pdf"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="receipt-upload"
-                    disabled={uploading}
-                  />
-                  <label
-                    htmlFor="receipt-upload"
-                    className={`btn btn-primary w-full cursor-pointer flex items-center justify-center ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                  >
-                    {uploading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
-                        Selecionar Comprovante
-                      </>
-                    )}
-                  </label>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-warmGray-light uppercase tracking-wider">Rifa</p>
+                    <p className="font-semibold text-warmGray">{raffle.title}</p>
+                  </div>
+                  
+                  <div>
+                    <p className="text-xs text-warmGray-light uppercase tracking-wider">Data da Reserva</p>
+                    <p className="font-semibold text-warmGray flex items-center">
+                      <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-warmGray-light text-xs" />
+                      {formatDate(firstSelection.selectedAt)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">Números Selecionados ({selections.length})</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selections.map((s: any) => (
+                        <span key={s._id} className="bg-coral text-white px-3 py-1 rounded-full font-bold text-sm shadow-sm">
+                          {s.number}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-center text-warmGray-light">
-                  Formatos aceitos: Imagem ou PDF (Max 5MB)
-                </p>
               </div>
-            )}
+
+              {/* User Info */}
+              <div className="bg-white/50 rounded-xl p-6 border border-white/40">
+                <h3 className="text-lg font-bold text-warmGray mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faUser} className="mr-2 text-coral" />
+                  Seus Dados
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-warmGray-light uppercase tracking-wider">Contato Principal</p>
+                    <p className="font-semibold text-warmGray flex items-center capitalize">
+                      <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2" />
+                      {user.preferredContact}
+                    </p>
+                  </div>
+                  
+                  {user.whatsapp && (
+                    <div>
+                      <p className="text-xs text-warmGray-light uppercase tracking-wider">WhatsApp</p>
+                      <p className="font-semibold text-warmGray">{user.whatsapp}</p>
+                    </div>
+                  )}
+                  
+                  {user.instagramHandle && (
+                    <div>
+                      <p className="text-xs text-warmGray-light uppercase tracking-wider">Instagram</p>
+                      <p className="font-semibold text-warmGray">{user.instagramHandle}</p>
+                    </div>
+                  )}
+
+                  {user.xHandle && (
+                    <div>
+                      <p className="text-xs text-warmGray-light uppercase tracking-wider">X / Twitter</p>
+                      <p className="font-semibold text-warmGray">{user.xHandle}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Payment & Upload */}
+            <div className="space-y-6">
+              {/* PIX Payment Instruction */}
+              <div className="bg-white/50 rounded-xl p-6 border border-white/40">
+                <h3 className="text-lg font-bold text-warmGray mb-2">Pagamento via PIX</h3>
+                <p className="text-warmGray-light mb-4">
+                  Para finalizar, envie um PIX no valor de <strong>R$ { (selections.length * (raffle.price || 0)).toFixed(2) }</strong> para a seguinte chave <strong>{raffle.pixKey}</strong> no nome de <strong>{raffle.pixName}</strong>.
+                </p>
+                <p className="text-sm text-warmGray-light mb-4">O tempo limite para realizar o pagamento é de 30 minutos.</p>
+                {raffle.pixQRCode && (
+                  <div className="text-center">
+                    <img src={raffle.pixQRCode} alt="PIX QR Code" className="mx-auto h-40 w-auto" />
+                  </div>
+                )}
+              </div>
+
+              {/* Upload Receipt Section */}
+              <div className="bg-white/50 rounded-xl p-6 border border-white/40">
+                <h3 className="text-lg font-bold text-warmGray mb-4">Enviar Comprovante</h3>
+                
+                {uploadSuccess || (receipt && (receipt.status === 'receipt_uploaded' || receipt.status === 'paid')) ? (
+                  <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
+                    <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
+                    <p className="font-semibold">
+                      {receipt?.status === 'paid' ? 'Pagamento Confirmado!' : 'Comprovante Enviado!'}
+                    </p>
+                    <p className="text-sm">
+                      {receipt?.status === 'paid' 
+                        ? 'Seus números estão garantidos.' 
+                        : 'Aguarde a confirmação do administrador.'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <p className="text-warmGray-light text-sm">
+                      Após realizar o pagamento, envie o comprovante aqui para agilizar a confirmação.
+                    </p>
+                    
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="receipt-upload"
+                        disabled={uploading}
+                      />
+                      <label
+                        htmlFor="receipt-upload"
+                        className={`btn btn-primary w-full cursor-pointer flex items-center justify-center ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                      >
+                        {uploading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
+                            Selecionar Comprovante
+                          </>
+                        )}
+                      </label>
+                    </div>
+                    <p className="text-xs text-center text-warmGray-light">
+                      Formatos aceitos: Imagem ou PDF (Max 5MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>        
 
           <div className="text-center mt-6">
