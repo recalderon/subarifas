@@ -49,4 +49,8 @@ export const adminAPI = {
     api.get(`/api/admin/selection/${raffleId}/${pageNumber}/${number}`),
 };
 
+export const healthAPI = {
+  check: () => api.get('/health'),
+};
+
 export default api;

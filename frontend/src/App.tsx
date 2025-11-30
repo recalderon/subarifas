@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import RaffleSelection from './pages/RaffleSelection';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import ServerWakeUp from './components/layout/ServerWakeUp';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -50,7 +51,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <ServerWakeUp>
+          <AppContent />
+        </ServerWakeUp>
       </AuthProvider>
     </Router>
   );
