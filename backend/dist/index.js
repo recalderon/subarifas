@@ -4,6 +4,7 @@ import { cors } from '@elysiajs/cors';
 import { connectDB } from './db/connection';
 import { raffleRoutes } from './routes/raffles';
 import { selectionRoutes } from './routes/selections';
+import { receiptRoutes } from './routes/receipts';
 import { adminRoutes } from './routes/admin';
 import { eventBus } from './utils/events';
 import dotenv from 'dotenv';
@@ -43,6 +44,7 @@ const app = new Elysia()
 }))
     .use(raffleRoutes)
     .use(selectionRoutes)
+    .use(receiptRoutes)
     .use(adminRoutes)
     .onError(({ code, error, set }) => {
     console.error('Error:', error);

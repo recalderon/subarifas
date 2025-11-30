@@ -118,24 +118,25 @@ const RaffleSelection: React.FC = () => {
 
     setSubmitting(true);
 
+
     try {
       // Generate a unique receipt ID for this batch
       const receiptId = crypto.randomUUID();
 
-      // Submit each selected number
-      for (const number of selectedNumbers) {
-        await selectionAPI.create(id!, {
-          receiptId,
+      // Submit all selected numbers in a single batch
+      await selectionAPI.create(id!, {
+        receiptId,
+        numbers: selectedNumbers.map(number => ({
           number,
           pageNumber: currentPage,
-          user: {
-            xHandle: data.xHandle,
-            instagramHandle: data.instagramHandle,
-            whatsapp: data.whatsapp,
-            preferredContact: data.preferredContact,
-          },
-        });
-      }
+        })),
+        user: {
+          xHandle: data.xHandle,
+          instagramHandle: data.instagramHandle,
+          whatsapp: data.whatsapp,
+          preferredContact: data.preferredContact,
+        },
+      });
 
       setShowSuccess(true);
       setTimeout(() => {

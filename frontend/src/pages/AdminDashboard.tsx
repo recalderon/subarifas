@@ -6,7 +6,7 @@ import {
   faPlus, faPlay, faStop, faTrash, faEye, faBook, faEdit, faTrophy 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
-import { raffleAPI, adminAPI } from '../services/api';
+import { raffleAPI, receiptAPI } from '../services/api';
 
 interface RaffleForm {
   title: string;
@@ -14,6 +14,7 @@ interface RaffleForm {
   endDate: string;
   pages: number;
   price: number;
+  expirationHours: number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -22,14 +23,15 @@ const AdminDashboard: React.FC = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RaffleForm>({
     defaultValues: {
       pages: 1,
-      price: 0
+      price: 0,
+      expirationHours: 24
     }
   });
 
   const [raffles, setRaffles] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedRaffle, setSelectedRaffle] = useState<any>(null);
-  const [selections, setSelections] = useState<any>(null);
+  const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -93,13 +95,25 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const viewSelections = async (raffleId: string) => {
+  const viewReceipts = async (raffleId: string) => {
     try {
-      const response = await adminAPI.getSelections(raffleId);
-      setSelections(response.data);
+      const response = await receiptAPI.getByRaffle(raffleId);
+      setReceipts(response.data);
       setSelectedRaffle(raffles.find(r => r._id === raffleId));
     } catch (err) {
-      alert('Erro ao carregar seleções');
+      alert('Erro ao carregar transações');
+    }
+  };
+
+  const handleStatusChange = async (receiptId: string, newStatus: string) => {
+    try {
+      await receiptAPI.updateStatus(receiptId, newStatus as any, 'Admin');
+      // Reload receipts
+      if (selectedRaffle) {
+        viewReceipts(selectedRaffle._id);
+      }
+    } catch (err) {
+      alert('Erro ao atualizar status');
     }
   };
 
@@ -251,6 +265,18 @@ const AdminDashboard: React.FC = () => {
                   />
                   {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
                 </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Horas para Expiração</label>
+                  <input
+                    type="number"
+                    min="1"
+                    {...register('expirationHours', { required: 'Campo obrigatório', min: 1, valueAsNumber: true })}
+                    className="input"
+                    placeholder="24"
+                  />
+                  {errors.expirationHours && <p className="text-red-500 text-sm mt-1">{errors.expirationHours.message}</p>}
+                </div>
               </div>
 
               <div className="flex gap-4">
@@ -342,11 +368,11 @@ const AdminDashboard: React.FC = () => {
                   {raffle.status === 'open' ? 'Aguardar Sorteio' : raffle.status === 'waiting' ? 'Encerrar' : 'Reabrir'}
                 </button>
                 <button
-                  onClick={() => viewSelections(raffle._id)}
+                  onClick={() => viewReceipts(raffle._id)}
                   className="btn btn-secondary text-sm"
                 >
                   <FontAwesomeIcon icon={faEye} className="mr-2" />
-                  Ver Números
+                  Ver Transações
                 </button>
                 <button
                   onClick={() => handleEditRaffle(raffle)}
@@ -367,17 +393,17 @@ const AdminDashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Selections Modal */}
-        {selections && selectedRaffle && (
+        {/* Receipts/Transactions Modal */}
+        {receipts.length > 0 && selectedRaffle && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="card-glass max-w-4xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="card-glass max-w-6xl w-full max-h-[80vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-display font-bold text-warmGray">
-                  Números Selecionados - {selectedRaffle.title}
+                  Transações - {selectedRaffle.title}
                 </h2>
                 <button
                   onClick={() => {
-                    setSelections(null);
+                    setReceipts([]);
                     setSelectedRaffle(null);
                   }}
                   className="btn btn-outline"
@@ -388,34 +414,87 @@ const AdminDashboard: React.FC = () => {
 
               <div className="bg-mint/20 rounded-2xl p-4 mb-6">
                 <p className="text-warmGray">
-                  <strong>Total:</strong> {selections.stats.total} números selecionados
+                  <strong>Total de Transações:</strong> {receipts.length}
                 </p>
                 <p className="text-warmGray">
-                  <strong>Arrecadado (Est.):</strong> R$ {(selections.stats.total * (selectedRaffle.price || 0)).toFixed(2)}
-                </p>
-                <p className="text-warmGray">
-                  <strong>Menor:</strong> {selections.stats.min || 'N/A'} | 
-                  <strong className="ml-2">Maior:</strong> {selections.stats.max || 'N/A'}
+                  <strong>Arrecadado Total:</strong> R$ {receipts.reduce((sum, r) => sum + (r.totalAmount || 0), 0).toFixed(2)}
                 </p>
               </div>
 
               <div className="space-y-4">
-                {selections.selections.map((sel: any) => (
-                  <div key={sel._id} className="bg-white rounded-2xl p-4 shadow-soft">
-                    <div className="flex justify-between items-start">
+                {receipts.map((receipt: any) => (
+                  <div key={receipt._id} className="bg-white rounded-2xl p-4 shadow-soft">
+                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <p className="text-2xl font-bold text-coral">
-                          Número {sel.number} (Página {sel.pageNumber})
+                        <p className="text-lg font-bold text-coral">
+                          Recibo: {receipt.receiptId.slice(0, 8)}...
                         </p>
-                        <div className="mt-2 text-sm text-warmGray space-y-1">
-                          <p>🐦 X: {sel.user.xHandle}</p>
-                          <p>📷 Instagram: {sel.user.instagramHandle}</p>
-                          <p>📱 WhatsApp: {sel.user.whatsapp}</p>
-                        </div>
+                        <p className="text-sm text-warmGray-light">
+                          {new Date(receipt.createdAt).toLocaleString('pt-BR')}
+                        </p>
                       </div>
-                      <p className="text-xs text-warmGray-light">
-                        {new Date(sel.selectedAt).toLocaleString('pt-BR')}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          receipt.status === 'paid' ? 'bg-green-200 text-green-800' :
+                          receipt.status === 'waiting_payment' ? 'bg-yellow-200 text-yellow-800' :
+                          receipt.status === 'expired' ? 'bg-red-200 text-red-800' :
+                          'bg-gray-200 text-gray-800'
+                        }`}>
+                          {receipt.status === 'paid' ? 'Pago' :
+                           receipt.status === 'waiting_payment' ? 'Aguardando Pagamento' :
+                           receipt.status === 'expired' ? 'Expirado' :
+                           'Criado'}
+                        </span>
+                        <select
+                          value={receipt.status}
+                          onChange={(e) => handleStatusChange(receipt.receiptId, e.target.value)}
+                          className="input text-sm py-1"
+                        >
+                          <option value="created">Criado</option>
+                          <option value="waiting_payment">Aguardando Pagamento</option>
+                          <option value="paid">Pago</option>
+                          <option value="expired">Expirado</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-warmGray-light">Números Selecionados</p>
+                        <p className="font-semibold text-warmGray">
+                          {receipt.numbers.map((n: any) => `${n.number} (P${n.pageNumber})`).join(', ')}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-warmGray-light">Valor Total</p>
+                        <p className="font-semibold text-warmGray">R$ {receipt.totalAmount.toFixed(2)}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <p className="text-sm text-warmGray-light mb-2">Informações do Cliente</p>
+                      <div className="grid grid-cols-3 gap-2 text-sm text-warmGray">
+                        <p>🐦 X: {receipt.user.xHandle}</p>
+                        <p>📷 Instagram: {receipt.user.instagramHandle}</p>
+                        <p>📱 WhatsApp: {receipt.user.whatsapp}</p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4 mt-4">
+                      <p className="text-sm text-warmGray-light mb-2">Expira em: {new Date(receipt.expiresAt).toLocaleString('pt-BR')}</p>
+                      {receipt.statusHistory && receipt.statusHistory.length > 1 && (
+                        <details className="text-sm">
+                          <summary className="cursor-pointer text-warmGray-light">Histórico de Status</summary>
+                          <div className="mt-2 space-y-1">
+                            {receipt.statusHistory.map((h: any, i: number) => (
+                              <p key={i} className="text-xs text-warmGray">
+                                {new Date(h.changedAt).toLocaleString('pt-BR')} - {h.status} 
+                                {h.changedBy && ` por ${h.changedBy}`}
+                              </p>
+                            ))}
+                          </div>
+                        </details>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia';
 import { Selection } from '../db/models/Selection';
 import { Raffle } from '../db/models/Raffle';
+import { Receipt } from '../db/models/Receipt';
 import { hasRaffleEnded } from '../utils/datetime';
 import { eventBus } from '../utils/events';
 
@@ -84,56 +85,83 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         return { error: 'Raffle has ended' };
       }
 
-      // Validate page number
-      if (body.pageNumber < 1 || body.pageNumber > raffle.pages) {
-        set.status = 400;
-        return { error: 'Invalid page number' };
+      // Validate all numbers
+      for (const item of body.numbers) {
+        if (item.pageNumber < 1 || item.pageNumber > raffle.pages) {
+          set.status = 400;
+          return { error: `Invalid page number: ${item.pageNumber}` };
+        }
+
+        // Check if number is already taken
+        const existing = await Selection.findOne({
+          raffleId,
+          number: item.number,
+          pageNumber: item.pageNumber,
+        });
+
+        if (existing) {
+          set.status = 409;
+          return { error: `Number ${item.number} on page ${item.pageNumber} is already selected` };
+        }
       }
 
-      // Check if number is already taken
-      const existing = await Selection.findOne({
+      // Calculate expiration time
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + raffle.expirationHours);
+
+      // Calculate total amount
+      const totalAmount = body.numbers.length * raffle.price;
+
+      // Create receipt
+      const receipt = new Receipt({
+        receiptId: body.receiptId,
         raffleId,
-        number: body.number,
-        pageNumber: body.pageNumber,
+        status: 'created',
+        numbers: body.numbers,
+        user: body.user,
+        totalAmount,
+        expiresAt,
+        statusHistory: [{
+          status: 'created',
+          changedAt: new Date(),
+        }],
       });
 
-      if (existing) {
-        set.status = 409;
-        return { error: 'Number already selected' };
-      }
+      await receipt.save();
 
-      // Create selection
-      console.log(`Creating selection for raffle ${raffleId}, receipt ${body.receiptId}, number ${body.number}`);
-      const selection = new Selection({
+      // Create selections
+      const selections = body.numbers.map((item: any) => ({
         raffleId,
         receiptId: body.receiptId,
-        number: body.number,
-        pageNumber: body.pageNumber,
+        number: item.number,
+        pageNumber: item.pageNumber,
         user: body.user,
-      });
+      }));
 
-      await selection.save();
-      console.log(`Selection saved: ${selection._id}`);
+      await Selection.insertMany(selections);
 
-      // Broadcast selection
-      eventBus.emit('selection:created', {
-        raffleId,
-        number: body.number,
-        pageNumber: body.pageNumber,
-      });
+      // Broadcast selections
+      for (const item of body.numbers) {
+        eventBus.emit('selection:created', {
+          raffleId,
+          number: item.number,
+          pageNumber: item.pageNumber,
+        });
+      }
 
-      set.status = 201;
-
-      return selection;
-    } catch (error: any) {
-      set.status = 400;
-      return { error: error.message };
+      return { success: true, receiptId: body.receiptId };
+    } catch (err: any) {
+      console.error('Error creating selections:', err);
+      set.status = 500;
+      return { error: err.message || 'Failed to create selections' };
     }
   }, {
     body: t.Object({
       receiptId: t.String(),
-      number: t.Number({ minimum: 1, maximum: 100 }),
-      pageNumber: t.Number({ minimum: 1 }),
+      numbers: t.Array(t.Object({
+        number: t.Number(),
+        pageNumber: t.Number(),
+      })),
       user: t.Object({
         xHandle: t.String(),
         instagramHandle: t.String(),
@@ -141,7 +169,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         preferredContact: t.Union([
           t.Literal('x'),
           t.Literal('instagram'),
-          t.Literal('whatsapp')
+          t.Literal('whatsapp'),
         ]),
       }),
     }),

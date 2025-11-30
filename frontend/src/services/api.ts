@@ -50,6 +50,13 @@ export const adminAPI = {
     api.get(`/api/admin/selection/${raffleId}/${pageNumber}/${number}`),
 };
 
+export const receiptAPI = {
+  getByRaffle: (raffleId: string) => api.get(`/api/receipts/${raffleId}`),
+  getById: (receiptId: string) => api.get(`/api/receipts/detail/${receiptId}`),
+  updateStatus: (receiptId: string, status: 'created' | 'waiting_payment' | 'expired' | 'paid', changedBy?: string, note?: string) =>
+    api.patch(`/api/receipts/${receiptId}/status`, { status, changedBy, note }),
+};
+
 export const healthAPI = {
   check: () => api.get('/health'),
 };

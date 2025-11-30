@@ -7,6 +7,7 @@ export interface IRaffle extends Document {
   endDate: Date;
   pages: number;
   price: number;
+  expirationHours: number;
   winnerNumber?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -29,11 +30,6 @@ const RaffleSchema = new Schema<IRaffle>(
       enum: ['open', 'waiting', 'closed'],
       default: 'open',
     },
-    winnerNumber: {
-      type: Number,
-      min: 1,
-      max: 100,
-    },
     endDate: {
       type: Date,
       required: true,
@@ -48,6 +44,17 @@ const RaffleSchema = new Schema<IRaffle>(
       required: true,
       min: 0,
       default: 0,
+    },
+    expirationHours: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 24,
+    },
+    winnerNumber: {
+      type: Number,
+      min: 1,
+      max: 100,
     },
   },
   {

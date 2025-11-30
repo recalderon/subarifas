@@ -6,6 +6,7 @@ export interface IRaffle extends Document {
     endDate: Date;
     pages: number;
     price: number;
+    expirationHours: number;
     winnerNumber?: number;
     createdAt: Date;
     updatedAt: Date;

@@ -15,11 +15,6 @@ const RaffleSchema = new Schema({
         enum: ['open', 'waiting', 'closed'],
         default: 'open',
     },
-    winnerNumber: {
-        type: Number,
-        min: 1,
-        max: 100,
-    },
     endDate: {
         type: Date,
         required: true,
@@ -34,6 +29,17 @@ const RaffleSchema = new Schema({
         required: true,
         min: 0,
         default: 0,
+    },
+    expirationHours: {
+        type: Number,
+        required: true,
+        min: 1,
+        default: 24,
+    },
+    winnerNumber: {
+        type: Number,
+        min: 1,
+        max: 100,
     },
 }, {
     timestamps: true,

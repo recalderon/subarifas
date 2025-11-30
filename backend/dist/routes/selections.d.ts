@@ -69,15 +69,17 @@ export declare const selectionRoutes: Elysia<"/api/selections", false, {
             ":raffleId": {
                 post: {
                     body: {
-                        number: number;
                         receiptId: string;
-                        pageNumber: number;
                         user: {
                             whatsapp: string;
                             xHandle: string;
                             instagramHandle: string;
                             preferredContact: "x" | "instagram" | "whatsapp";
                         };
+                        numbers: {
+                            number: number;
+                            pageNumber: number;
+                        }[];
                     };
                     params: Record<"raffleId", string>;
                     query: unknown;
