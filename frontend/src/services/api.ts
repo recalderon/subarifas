@@ -18,6 +18,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Parse JSON string responses
+api.interceptors.response.use((response) => {
+  if (typeof response.data === 'string') {
+    try {
+      response.data = JSON.parse(response.data);
+    } catch (e) {
+      // If parsing fails, leave as string
+    }
+  }
+  return response;
+});
+
 // Raffle API
 export const raffleAPI = {
   getAll: () => api.get('/api/raffles'),
