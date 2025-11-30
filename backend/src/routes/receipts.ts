@@ -49,7 +49,7 @@ Contato: ${receipt.user.preferredContact}
 ID do Recibo: ${receiptId}
     `.trim();
 
-    const sent = await sendReceiptToTelegram(file, caption);
+    const sent = await sendReceiptToTelegram(file, caption, file.name);
 
     if (!sent) {
        set.status = 500;

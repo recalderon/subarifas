@@ -13,7 +13,8 @@ if (botToken) {
 
 export const sendReceiptToTelegram = async (
   file: Blob,
-  caption: string
+  caption: string,
+  filename: string
 ) => {
   if (!bot || !chatId) {
     console.error('Telegram bot or chat ID not configured');
@@ -26,7 +27,7 @@ export const sendReceiptToTelegram = async (
 
     await bot.telegram.sendDocument(chatId, {
       source: buffer,
-      filename: 'comprovante.jpg' // Default name, maybe improve later
+      filename: filename
     }, {
       caption: caption
     });

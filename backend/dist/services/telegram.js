@@ -8,7 +8,7 @@ if (botToken) {
 else {
     console.warn('TELEGRAM_BOT_TOKEN not found in environment variables');
 }
-export const sendReceiptToTelegram = async (file, caption) => {
+export const sendReceiptToTelegram = async (file, caption, filename) => {
     if (!bot || !chatId) {
         console.error('Telegram bot or chat ID not configured');
         return false;
@@ -18,7 +18,7 @@ export const sendReceiptToTelegram = async (file, caption) => {
         const buffer = Buffer.from(arrayBuffer);
         await bot.telegram.sendDocument(chatId, {
             source: buffer,
-            filename: 'comprovante.jpg' // Default name, maybe improve later
+            filename: filename
         }, {
             caption: caption
         });
