@@ -23,7 +23,7 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
       return { error: 'Receipt not found' };
     }
 
-    return receipt;
+    return receipt.toObject();
   })
 
   // Upload receipt

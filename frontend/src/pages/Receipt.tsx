@@ -38,9 +38,21 @@ const Receipt: React.FC = () => {
       // Fetch receipt details for status
       const receiptResponse = await receiptAPI.getById(id!);
       console.log('Full receipt response:', receiptResponse);
-      console.log('Receipt data:', receiptResponse.data);
-      console.log('Receipt status from API:', receiptResponse.data?.status);
-      setReceipt(receiptResponse.data);
+      console.log('Type of response.data:', typeof receiptResponse.data);
+      
+      // Parse if data is a string
+      let receiptData = receiptResponse.data;
+      if (typeof receiptData === 'string') {
+        console.log('Data is string, parsing...');
+        receiptData = JSON.parse(receiptData);
+      }
+      
+      console.log('Receipt data:', receiptData);
+      console.log('Type of receiptData:', typeof receiptData);
+      console.log('receiptData keys:', Object.keys(receiptData || {}));
+      console.log('Receipt status from API:', receiptData?.status);
+      console.log('Direct access test:', receiptData && receiptData['status']);
+      setReceipt(receiptData);
 
     } catch (err) {
       console.error('Error loading receipt:', err);
