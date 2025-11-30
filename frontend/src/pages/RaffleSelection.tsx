@@ -203,42 +203,45 @@ const RaffleSelection: React.FC = () => {
           <p className="text-warmGray-light">{raffle?.description}</p>
         </div>
 
-        {/* Book Pages Navigation */}
-        <div className="card-glass mb-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
-              Página Anterior
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm text-warmGray-light">Página</p>
-              <p className="text-2xl font-display font-bold text-warmGray">
-                {currentPage} / {raffle?.pages}
-              </p>
-            </div>
-
-            <button
-              onClick={() => setCurrentPage(p => Math.min(raffle?.pages || 1, p + 1))}
-              disabled={currentPage === raffle?.pages}
-              className="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Próxima Página
-              <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
-            </button>
-          </div>
-        </div>
-
+        {/* Book Pages Navigation - Removed from here */}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Number Grid */}
           <div className="card-glass lg:col-span-2 h-fit">
             <h3 className="text-xl font-display font-bold text-warmGray mb-4 text-center">
               Selecione seus números (1-100)
             </h3>
+
+            {/* Pagination inside Number Grid */}
+            {raffle?.pages > 1 && (
+              <div className="flex items-center justify-between mb-6 bg-white/30 p-3 rounded-xl">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="btn btn-sm btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
+                  Anterior
+                </button>
+
+                <div className="text-center">
+                  <p className="text-xs text-warmGray-light uppercase tracking-wider">Página</p>
+                  <p className="text-xl font-display font-bold text-warmGray">
+                    {currentPage} / {raffle?.pages}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(raffle?.pages || 1, p + 1))}
+                  disabled={currentPage === raffle?.pages}
+                  className="btn btn-sm btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Próxima
+                  <FontAwesomeIcon icon={faChevronRight} className="ml-2" />
+                </button>
+              </div>
+            )}
+
             <NumberGrid
               availableNumbers={availableNumbers}
               takenNumbers={takenNumbers}

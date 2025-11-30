@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faPlus, faPlay, faStop, faTrash, faEye, faBook 
+  faPlus, faPlay, faStop, faTrash, faEye, faBook, faEdit 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { raffleAPI, adminAPI } from '../services/api';
@@ -18,7 +18,11 @@ interface RaffleForm {
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<RaffleForm>();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<RaffleForm>({
+    defaultValues: {
+      pages: 1
+    }
+  });
 
   const [raffles, setRaffles] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -85,6 +89,18 @@ const AdminDashboard: React.FC = () => {
       setSelectedRaffle(raffles.find(r => r._id === raffleId));
     } catch (err) {
       alert('Erro ao carregar seleções');
+    }
+  };
+
+  const handleUpdatePages = async (raffle: any) => {
+    const newPages = prompt('Novo número de páginas:', raffle.pages);
+    if (newPages && !isNaN(Number(newPages)) && Number(newPages) > 0) {
+      try {
+        await raffleAPI.update(raffle._id, { pages: Number(newPages) });
+        loadRaffles();
+      } catch (err) {
+        alert('Erro ao atualizar páginas');
+      }
     }
   };
 
@@ -212,7 +228,16 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="text-sm text-warmGray-light mb-4">
-                <p>Páginas: {raffle.pages}</p>
+                <p className="flex items-center gap-2">
+                  Páginas: {raffle.pages}
+                  <button 
+                    onClick={() => handleUpdatePages(raffle)}
+                    className="text-coral hover:text-coral-dark text-xs"
+                    title="Editar páginas"
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                </p>
                 <p>Término: {new Date(raffle.endDate).toLocaleString('pt-BR')}</p>
               </div>
 
@@ -236,6 +261,13 @@ const AdminDashboard: React.FC = () => {
                   className="btn btn-outline text-sm"
                 >
                   <FontAwesomeIcon icon={faTrash} />
+                </button>
+                <button
+                  onClick={() => handleUpdatePages(raffle)}
+                  className="btn btn-secondary text-sm"
+                >
+                  <FontAwesomeIcon icon={faEdit} className="mr-2" />
+                  Editar Páginas
                 </button>
               </div>
             </div>
