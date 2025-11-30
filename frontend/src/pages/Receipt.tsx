@@ -60,7 +60,7 @@ const Receipt: React.FC = () => {
   const firstSelection = selections[0];
   const raffle = firstSelection.raffleId;
   const user = firstSelection.user;
-  const totalAmount = selections.length; // Assuming 1 ticket = 1 unit of currency, adjust if needed
+  // const totalAmount = selections.length; // Assuming 1 ticket = 1 unit of currency, adjust if needed
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('pt-BR', {
