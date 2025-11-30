@@ -5,6 +5,7 @@ export interface IRaffle extends Document {
     status: 'active' | 'ended';
     endDate: Date;
     pages: number;
+    price: number;
     winnerNumber?: number;
     createdAt: Date;
     updatedAt: Date;

@@ -314,6 +314,33 @@ const RaffleSelection: React.FC = () => {
 
           {/* User Info Form */}
           <div className="lg:col-span-1">
+            {/* Price Summary Card */}
+            {selectedNumbers.length > 0 && raffle?.price && (
+              <div className="card-glass mb-4 animate-fadeIn">
+                <h3 className="text-xl font-display font-bold text-warmGray mb-4 text-center">
+                  Resumo
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-warmGray">
+                    <span>Números selecionados:</span>
+                    <span className="font-bold">{selectedNumbers.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-warmGray">
+                    <span>Preço por número:</span>
+                    <span className="font-bold">R$ {raffle.price.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-white/20 pt-3">
+                    <div className="flex justify-between items-center text-warmGray">
+                      <span className="text-lg font-bold">Total:</span>
+                      <span className="text-2xl font-bold text-coral">
+                        R$ {(selectedNumbers.length * raffle.price).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="card-glass sticky top-4">
               <h3 className="text-2xl font-display font-bold text-warmGray mb-6 text-center">
                 Suas Informações

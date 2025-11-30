@@ -13,6 +13,7 @@ interface RaffleForm {
   description: string;
   endDate: string;
   pages: number;
+  price: number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -20,7 +21,8 @@ const AdminDashboard: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RaffleForm>({
     defaultValues: {
-      pages: 1
+      pages: 1,
+      price: 0
     }
   });
 
@@ -92,6 +94,30 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleEditRaffle = async (raffle: any) => {
+    const newEndDate = prompt('Nova data de término (YYYY-MM-DDTHH:mm):', raffle.endDate.slice(0, 16));
+    const newPrice = prompt('Novo preço:', raffle.price);
+    
+    const updates: any = {};
+    
+    if (newEndDate && newEndDate !== raffle.endDate.slice(0, 16)) {
+      updates.endDate = newEndDate;
+    }
+    
+    if (newPrice && !isNaN(Number(newPrice))) {
+      updates.price = Number(newPrice);
+    }
+
+    if (Object.keys(updates).length > 0) {
+      try {
+        await raffleAPI.update(raffle._id, updates);
+        loadRaffles();
+      } catch (err) {
+        alert('Erro ao atualizar rifa');
+      }
+    }
+  };
+
   const handleUpdatePages = async (raffle: any) => {
     const newPages = prompt('Novo número de páginas:', raffle.pages);
     if (newPages && !isNaN(Number(newPages)) && Number(newPages) > 0) {
@@ -106,7 +132,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleSetWinner = async (raffle: any) => {
     const winner = prompt('Número do ganhador:', raffle.winnerNumber || '');
-    if (winner !== null) { // Allow clearing if empty string passed? prompt returns null on cancel
+    if (winner !== null) {
       const num = winner === '' ? undefined : Number(winner);
       if (num !== undefined && isNaN(num)) {
         alert('Número inválido');
@@ -114,8 +140,6 @@ const AdminDashboard: React.FC = () => {
       }
       
       try {
-        // If empty string, we might want to unset it, but API expects number. 
-        // For now let's assume we only set numbers.
         if (num !== undefined) {
            await raffleAPI.update(raffle._id, { winnerNumber: num });
            loadRaffles();
@@ -181,10 +205,10 @@ const AdminDashboard: React.FC = () => {
                 {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-warmGray font-medium mb-2">
-                    Data/Hora de Término (Horário de Brasília)
+                    Data/Hora de Término
                   </label>
                   <input
                     type="datetime-local"
@@ -204,6 +228,19 @@ const AdminDashboard: React.FC = () => {
                     placeholder="1"
                   />
                   {errors.pages && <p className="text-red-500 text-sm mt-1">{errors.pages.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Preço por Número (R$)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    {...register('price', { required: 'Campo obrigatório', min: 0, valueAsNumber: true })}
+                    className="input"
+                    placeholder="0.00"
+                  />
+                  {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
                 </div>
               </div>
 
@@ -249,9 +286,12 @@ const AdminDashboard: React.FC = () => {
                 </span>
               </div>
 
-              <div className="text-sm text-warmGray-light mb-4">
+              <div className="text-sm text-warmGray-light mb-4 space-y-1">
                 <p className="flex items-center gap-2">
-                  Páginas: {raffle.pages}
+                  <span className="font-semibold">Preço:</span> R$ {raffle.price?.toFixed(2)}
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">Páginas:</span> {raffle.pages}
                   <button 
                     onClick={() => handleUpdatePages(raffle)}
                     className="text-coral hover:text-coral-dark text-xs"
@@ -260,9 +300,18 @@ const AdminDashboard: React.FC = () => {
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
                 </p>
-                <p>Término: {new Date(raffle.endDate).toLocaleString('pt-BR')}</p>
                 <p className="flex items-center gap-2">
-                  Ganhador: {raffle.winnerNumber || '-'}
+                  <span className="font-semibold">Término:</span> {new Date(raffle.endDate).toLocaleString('pt-BR')}
+                  <button 
+                    onClick={() => handleEditRaffle(raffle)}
+                    className="text-coral hover:text-coral-dark text-xs"
+                    title="Editar data e preço"
+                  >
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold">Ganhador:</span> {raffle.winnerNumber || '-'}
                   <button 
                     onClick={() => handleSetWinner(raffle)}
                     className="text-coral hover:text-coral-dark text-xs"
@@ -273,40 +322,34 @@ const AdminDashboard: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleToggleStatus(raffle._id, raffle.status)}
-                  className={`btn ${raffle.status === 'active' ? 'btn-outline' : 'btn-secondary'} flex-1 text-sm`}
+                  className={`btn ${raffle.status === 'active' ? 'btn-outline' : 'btn-secondary'} text-sm`}
                 >
                   <FontAwesomeIcon icon={raffle.status === 'active' ? faStop : faPlay} className="mr-2" />
                   {raffle.status === 'active' ? 'Encerrar' : 'Ativar'}
                 </button>
                 <button
                   onClick={() => viewSelections(raffle._id)}
-                  className="btn btn-secondary flex-1 text-sm"
+                  className="btn btn-secondary text-sm"
                 >
                   <FontAwesomeIcon icon={faEye} className="mr-2" />
                   Ver Números
                 </button>
                 <button
-                  onClick={() => handleDelete(raffle._id)}
-                  className="btn btn-outline text-sm"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-                <button
-                  onClick={() => handleUpdatePages(raffle)}
+                  onClick={() => handleEditRaffle(raffle)}
                   className="btn btn-secondary text-sm"
                 >
                   <FontAwesomeIcon icon={faEdit} className="mr-2" />
-                  Editar Páginas
+                  Editar Info
                 </button>
                 <button
-                  onClick={() => handleSetWinner(raffle)}
-                  className="btn btn-trophy text-sm"
+                  onClick={() => handleDelete(raffle._id)}
+                  className="btn btn-outline text-sm"
                 >
-                  <FontAwesomeIcon icon={faTrophy} className="mr-2" />
-                  Definir Ganhador
+                  <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                  Excluir
                 </button>
               </div>
             </div>
@@ -335,6 +378,9 @@ const AdminDashboard: React.FC = () => {
               <div className="bg-mint/20 rounded-2xl p-4 mb-6">
                 <p className="text-warmGray">
                   <strong>Total:</strong> {selections.stats.total} números selecionados
+                </p>
+                <p className="text-warmGray">
+                  <strong>Arrecadado (Est.):</strong> R$ {(selections.stats.total * (selectedRaffle.price || 0)).toFixed(2)}
                 </p>
                 <p className="text-warmGray">
                   <strong>Menor:</strong> {selections.stats.min || 'N/A'} | 

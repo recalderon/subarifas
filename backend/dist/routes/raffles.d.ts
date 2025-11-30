@@ -75,6 +75,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         description: string;
                         endDate: string;
                         pages: number;
+                        price: number;
                     };
                     params: Record<never, string>;
                     query: unknown;
@@ -95,6 +96,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         description?: string | undefined;
                         endDate?: string | undefined;
                         pages?: number | undefined;
+                        price?: number | undefined;
                         winnerNumber?: number | undefined;
                     };
                     params: Record<"id", string>;

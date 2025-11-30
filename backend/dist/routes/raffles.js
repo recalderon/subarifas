@@ -102,6 +102,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         description: t.String(),
         endDate: t.String(),
         pages: t.Number(),
+        price: t.Number(),
     }),
 })
     .put('/:id', async ({ params: { id }, body, set }) => {
@@ -130,6 +131,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         description: t.Optional(t.String()),
         endDate: t.Optional(t.String()),
         pages: t.Optional(t.Number()),
+        price: t.Optional(t.Number()),
         winnerNumber: t.Optional(t.Number()),
     }),
 })

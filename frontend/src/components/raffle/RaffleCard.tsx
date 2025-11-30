@@ -11,6 +11,7 @@ interface RaffleCardProps {
     status: 'active' | 'ended';
     endDate: string;
     pages: number;
+    price: number;
     winnerNumber?: number;
     stats?: {
       total: number;
@@ -61,6 +62,12 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
         <p className="text-sm text-warmGray-light line-clamp-2">
           {raffle.description}
         </p>
+
+        {/* Price */}
+        <div className="flex items-center gap-2 text-lg font-bold text-coral bg-white/40 px-4 py-2 rounded-full">
+          <span>R$ {raffle.price?.toFixed(2)}</span>
+          <span className="text-xs text-warmGray-light font-normal">por número</span>
+        </div>
 
         {/* Stats: Available / Total */}
         <div className="flex items-center gap-2 text-sm text-warmGray bg-white/40 px-3 py-1 rounded-full">

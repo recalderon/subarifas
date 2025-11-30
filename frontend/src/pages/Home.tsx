@@ -11,6 +11,7 @@ interface Raffle {
   status: 'active' | 'ended';
   endDate: string;
   pages: number;
+  price: number;
 }
 
 const Home: React.FC = () => {

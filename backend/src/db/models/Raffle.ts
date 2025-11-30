@@ -6,6 +6,7 @@ export interface IRaffle extends Document {
   status: 'active' | 'ended';
   endDate: Date;
   pages: number;
+  price: number;
   winnerNumber?: number;
   createdAt: Date;
   updatedAt: Date;
@@ -41,6 +42,12 @@ const RaffleSchema = new Schema<IRaffle>(
       type: Number,
       required: true,
       min: 1,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
     },
   },
   {
