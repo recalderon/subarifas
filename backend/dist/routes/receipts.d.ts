@@ -76,7 +76,7 @@ export declare const receiptRoutes: Elysia<"/api/receipts", false, {
                         body: {
                             changedBy?: string | undefined;
                             note?: string | undefined;
-                            status: "created" | "waiting_payment" | "expired" | "paid";
+                            status: "waiting_payment" | "receipt_uploaded" | "paid" | "expired";
                         };
                         params: Record<"receiptId", string>;
                         query: unknown;

@@ -40,6 +40,11 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
     // @ts-ignore
     const rafflePrice = receipt.raffleId?.price || 0;
 
+    if (receipt.status !== 'waiting_payment') {
+      set.status = 400;
+      return { error: 'Receipt already uploaded or processed' };
+    }
+
     const caption = `
 Comprovante de Pagamento
 Rifa: ${raffleTitle}
@@ -56,11 +61,11 @@ ID do Recibo: ${receiptId}
        return { error: 'Failed to send receipt to Telegram' };
     }
 
-    // Update status to waiting_payment if it's currently created
-    if (receipt.status === 'created') {
-        receipt.status = 'waiting_payment';
+    // Update status to receipt_uploaded if it's currently waiting_payment
+    if (receipt.status === 'waiting_payment') {
+        receipt.status = 'receipt_uploaded';
         receipt.statusHistory.push({
-            status: 'waiting_payment',
+            status: 'receipt_uploaded',
             changedAt: new Date(),
             changedBy: 'system',
             note: 'Receipt uploaded by user'
@@ -112,8 +117,8 @@ ID do Recibo: ${receiptId}
   }, {
     body: t.Object({
       status: t.Union([
-        t.Literal('created'),
         t.Literal('waiting_payment'),
+        t.Literal('receipt_uploaded'),
         t.Literal('expired'),
         t.Literal('paid'),
       ]),

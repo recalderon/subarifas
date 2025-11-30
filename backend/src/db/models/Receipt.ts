@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IStatusChange {
-  status: 'created' | 'waiting_payment' | 'expired' | 'paid';
+  status: 'waiting_payment' | 'receipt_uploaded' | 'paid' | 'expired';
   changedAt: Date;
   changedBy?: string; // Admin user who changed it
   note?: string;
@@ -10,7 +10,7 @@ export interface IStatusChange {
 export interface IReceipt extends Document {
   receiptId: string;
   raffleId: mongoose.Types.ObjectId;
-  status: 'created' | 'waiting_payment' | 'expired' | 'paid';
+  status: 'waiting_payment' | 'receipt_uploaded' | 'paid' | 'expired';
   numbers: Array<{
     number: number;
     pageNumber: number;
@@ -31,7 +31,7 @@ export interface IReceipt extends Document {
 const StatusChangeSchema = new Schema<IStatusChange>({
   status: {
     type: String,
-    enum: ['created', 'waiting_payment', 'expired', 'paid'],
+    enum: ['waiting_payment', 'receipt_uploaded', 'paid', 'expired'],
     required: true,
   },
   changedAt: {
@@ -62,8 +62,8 @@ const ReceiptSchema = new Schema<IReceipt>(
     },
     status: {
       type: String,
-      enum: ['created', 'waiting_payment', 'expired', 'paid'],
-      default: 'created',
+      enum: ['waiting_payment', 'receipt_uploaded', 'paid', 'expired'],
+      default: 'waiting_payment',
       index: true,
     },
     numbers: [{

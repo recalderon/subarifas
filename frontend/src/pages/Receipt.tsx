@@ -12,6 +12,7 @@ const Receipt: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selections, setSelections] = useState<any[]>([]);
+  const [receipt, setReceipt] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -27,16 +28,17 @@ const Receipt: React.FC = () => {
     try {
       console.log('Loading receipt for ID:', id);
       const response = await selectionAPI.getReceipt(id!);
-      console.log('Receipt response:', response);
-      console.log('Receipt data:', response.data);
       
       if (Array.isArray(response.data)) {
         setSelections(response.data);
       } else {
-        console.error('Data is not an array:', response.data);
-        // Handle case where data might be wrapped
         setSelections(response.data.selections || []);
       }
+
+      // Fetch receipt details for status
+      const receiptResponse = await receiptAPI.getById(id!);
+      setReceipt(receiptResponse.data);
+
     } catch (err) {
       console.error('Error loading receipt:', err);
       setError('Recibo não encontrado');
@@ -117,6 +119,26 @@ const Receipt: React.FC = () => {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'waiting_payment': return 'Aguardando Pagamento';
+      case 'receipt_uploaded': return 'Comprovante Enviado';
+      case 'paid': return 'Pago';
+      case 'expired': return 'Expirado';
+      default: return 'Desconhecido';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'waiting_payment': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'receipt_uploaded': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'paid': return 'bg-green-100 text-green-800 border-green-200';
+      case 'expired': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   // Use shared formatter
 
   return (
@@ -128,6 +150,11 @@ const Receipt: React.FC = () => {
 
           <div className="text-center mb-8 pt-4">
             <FontAwesomeIcon icon={faCheckCircle} className="text-6xl text-teal-light mb-4" />
+            <div className="flex justify-center mb-4">
+              <span className={`px-4 py-1 rounded-full text-sm font-bold border ${getStatusColor(receipt?.status || 'waiting_payment')}`}>
+                {getStatusLabel(receipt?.status || 'waiting_payment')}
+              </span>
+            </div>
             <h1 className="text-3xl font-display font-bold text-warmGray">
               Reserva Confirmada!
             </h1>
@@ -249,11 +276,17 @@ const Receipt: React.FC = () => {
           <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40">
             <h3 className="text-lg font-bold text-warmGray mb-4">Enviar Comprovante</h3>
             
-            {uploadSuccess ? (
+            {uploadSuccess || (receipt && receipt.status !== 'waiting_payment') ? (
               <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
                 <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
-                <p className="font-semibold">Comprovante enviado!</p>
-                <p className="text-sm">Aguarde a confirmação do administrador.</p>
+                <p className="font-semibold">
+                  {receipt?.status === 'paid' ? 'Pagamento Confirmado!' : 'Comprovante Enviado!'}
+                </p>
+                <p className="text-sm">
+                  {receipt?.status === 'paid' 
+                    ? 'Seus números estão garantidos.' 
+                    : 'Aguarde a confirmação do administrador.'}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">

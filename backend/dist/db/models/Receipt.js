@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 const StatusChangeSchema = new Schema({
     status: {
         type: String,
-        enum: ['created', 'waiting_payment', 'expired', 'paid'],
+        enum: ['waiting_payment', 'receipt_uploaded', 'paid', 'expired'],
         required: true,
     },
     changedAt: {
@@ -31,8 +31,8 @@ const ReceiptSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['created', 'waiting_payment', 'expired', 'paid'],
-        default: 'created',
+        enum: ['waiting_payment', 'receipt_uploaded', 'paid', 'expired'],
+        default: 'waiting_payment',
         index: true,
     },
     numbers: [{

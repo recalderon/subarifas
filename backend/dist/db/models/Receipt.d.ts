@@ -1,6 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 export interface IStatusChange {
-    status: 'created' | 'waiting_payment' | 'expired' | 'paid';
+    status: 'waiting_payment' | 'receipt_uploaded' | 'paid' | 'expired';
     changedAt: Date;
     changedBy?: string;
     note?: string;
@@ -8,7 +8,7 @@ export interface IStatusChange {
 export interface IReceipt extends Document {
     receiptId: string;
     raffleId: mongoose.Types.ObjectId;
-    status: 'created' | 'waiting_payment' | 'expired' | 'paid';
+    status: 'waiting_payment' | 'receipt_uploaded' | 'paid' | 'expired';
     numbers: Array<{
         number: number;
         pageNumber: number;
