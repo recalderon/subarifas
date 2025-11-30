@@ -8,6 +8,7 @@ import {
 import { faArrowLeft, faCheck, faBook, faChevronLeft, faChevronRight, faTrophy, faClock } from '@fortawesome/free-solid-svg-icons';
 import NumberGrid from '../components/raffle/NumberGrid';
 import { raffleAPI, selectionAPI } from '../services/api';
+import generateReceiptId from '../utils/receiptId';
 
 interface UserForm {
   xHandle: string;
@@ -130,7 +131,7 @@ const RaffleSelection: React.FC = () => {
 
     try {
       // Generate a unique receipt ID for this batch
-      const receiptId = crypto.randomUUID();
+      const receiptId = generateReceiptId();
 
       // Build a numbers array to submit in a single request
       const numbers = selectedNumbers.map(n => ({ number: n, pageNumber: currentPage }));

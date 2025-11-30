@@ -4,6 +4,7 @@ import { Raffle } from '../db/models/Raffle';
 import { Receipt } from '../db/models/Receipt';
 import { hasRaffleEnded } from '../utils/datetime';
 import { eventBus } from '../utils/events';
+import generateReceiptId from '../utils/generateReceiptId';
 
 export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .get('/receipt/:receiptId', async ({ params: { receiptId }, set }) => {
@@ -113,8 +114,28 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       const totalAmount = body.numbers.length * raffle.price;
 
       // Create receipt
+      // Ensure we have a secure generated ID if not provided
+      let receiptId = body.receiptId;
+      if (!receiptId) {
+        let unique = false;
+        // Try up to 3 times to avoid collisions (extremely unlikely)
+        for (let i = 0; i < 3 && !unique; i++) {
+          const candidate = generateReceiptId();
+          const exists = await Receipt.findOne({ receiptId: candidate });
+          if (!exists) {
+            receiptId = candidate;
+            unique = true;
+            break;
+          }
+        }
+        // Fallback to uuid if randomness collides (very unlikely)
+        if (!unique && !receiptId) {
+          receiptId = crypto.randomUUID();
+        }
+      }
+
       const receipt = new Receipt({
-        receiptId: body.receiptId,
+        receiptId,
         raffleId,
         status: 'created',
         numbers: body.numbers,
@@ -132,7 +153,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       // Create selections
       const selections = body.numbers.map((item: any) => ({
         raffleId,
-        receiptId: body.receiptId,
+        receiptId,
         number: item.number,
         pageNumber: item.pageNumber,
         user: body.user,

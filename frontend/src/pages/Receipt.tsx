@@ -91,6 +91,11 @@ const Receipt: React.FC = () => {
     }
   };
 
+  const formatReceiptId = (id: string) => {
+    // Group into chunks of 4 for readability, e.g. ABCD-EFGH-IJKL-M
+    return id.match(/.{1,4}/g)?.join('-') || id;
+  };
+
   return (
     <div className="min-h-screen bg-summer py-8 px-4">
       <div className="max-w-lg mx-auto">
@@ -205,7 +210,7 @@ const Receipt: React.FC = () => {
 
           <div className="text-center mt-6">
             <p className="text-xs text-warmGray-light">
-              ID do Recibo: <span className="font-mono select-all">{id}</span>
+              ID do Recibo: <span className="font-mono select-all">{formatReceiptId(id || '')}</span>
             </p>
           </div>
         </div>
