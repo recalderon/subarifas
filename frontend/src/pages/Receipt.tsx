@@ -6,6 +6,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { selectionAPI } from '../services/api';
+import { formatReceiptId } from '../utils/receiptId';
 
 const Receipt: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -91,10 +92,7 @@ const Receipt: React.FC = () => {
     }
   };
 
-  const formatReceiptId = (id: string) => {
-    // Group into chunks of 4 for readability, e.g. ABCD-EFGH-IJKL-M
-    return id.match(/.{1,4}/g)?.join('-') || id;
-  };
+  // Use shared formatter
 
   return (
     <div className="min-h-screen bg-summer py-8 px-4">

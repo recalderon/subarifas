@@ -7,6 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { raffleAPI, receiptAPI } from '../services/api';
+import { formatReceiptId } from '../utils/receiptId';
 
 interface RaffleForm {
   title: string;
@@ -427,7 +428,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <p className="text-lg font-bold text-coral">
-                          Recibo: {receipt.receiptId.slice(0, 8)}...
+                          Recibo: {formatReceiptId(receipt.receiptId)}
                         </p>
                         <p className="text-sm text-warmGray-light">
                           {new Date(receipt.createdAt).toLocaleString('pt-BR')}

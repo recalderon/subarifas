@@ -1,5 +1,6 @@
 import { Elysia, t } from 'elysia';
 import { Selection } from '../db/models/Selection';
+import crypto from 'crypto';
 import { Raffle } from '../db/models/Raffle';
 import { Receipt } from '../db/models/Receipt';
 import { hasRaffleEnded } from '../utils/datetime';
@@ -171,6 +172,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       }
 
       return { success: true, receiptId: body.receiptId };
+      return { success: true, receiptId };
     } catch (err: any) {
       console.error('Error creating selections:', {
         raffleId,
@@ -182,7 +184,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
     }
   }, {
     body: t.Object({
-      receiptId: t.String(),
+      receiptId: t.Optional(t.String()),
       numbers: t.Array(t.Object({
         number: t.Number(),
         pageNumber: t.Number(),

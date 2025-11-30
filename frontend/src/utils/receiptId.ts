@@ -12,3 +12,9 @@ export function generateReceiptId(length = 13) {
 }
 
 export default generateReceiptId;
+
+export function formatReceiptId(id: string) {
+  if (!id) return id;
+  return id.match(/.{1,4}/g)?.join('-') || id;
+}
+
