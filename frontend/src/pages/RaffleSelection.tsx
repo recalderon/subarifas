@@ -226,132 +226,136 @@ const RaffleSelection: React.FC = () => {
           </div>
         </div>
 
-        {/* Number Grid */}
-        <div className="card-glass mb-8">
-          <h3 className="text-xl font-display font-bold text-warmGray mb-4 text-center">
-            Selecione seus números (1-100)
-          </h3>
-          <NumberGrid
-            availableNumbers={availableNumbers}
-            takenNumbers={takenNumbers}
-            selectedNumbers={selectedNumbers}
-            onToggleNumber={handleToggleNumber}
-            disabled={raffle?.status !== 'active'}
-          />
-          {selectedNumbers.length > 0 && (
-            <div className="mt-4 p-4 bg-coral/10 rounded-2xl">
-              <p className="text-center text-warmGray">
-                <strong>{selectedNumbers.length}</strong> número(s) selecionado(s): 
-                <span className="ml-2 font-semibold">
-                  {selectedNumbers.sort((a, b) => a - b).join(', ')}
-                </span>
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* User Info Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="card-glass max-w-2xl mx-auto">
-          <h3 className="text-2xl font-display font-bold text-warmGray mb-6 text-center">
-            Suas Informações
-          </h3>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-warmGray font-medium mb-2">
-                <FontAwesomeIcon icon={faTwitter} className="mr-2 text-warmGray-light" />
-                X / Twitter Handle
-              </label>
-              <input
-                type="text"
-                {...register('xHandle', { required: 'Campo obrigatório' })}
-                placeholder="@seu_usuario"
-                className="input"
-              />
-              {errors.xHandle && (
-                <p className="text-red-500 text-sm mt-1">{errors.xHandle.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-warmGray font-medium mb-2">
-                <FontAwesomeIcon icon={faInstagram} className="mr-2 text-warmGray-light" />
-                Instagram Handle
-              </label>
-              <input
-                type="text"
-                {...register('instagramHandle', { required: 'Campo obrigatório' })}
-                placeholder="@seu_usuario"
-                className="input"
-              />
-              {errors.instagramHandle && (
-                <p className="text-red-500 text-sm mt-1">{errors.instagramHandle.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-warmGray font-medium mb-2">
-                <FontAwesomeIcon icon={faWhatsapp} className="mr-2 text-warmGray-light" />
-                WhatsApp
-              </label>
-              <input
-                type="tel"
-                {...register('whatsapp', { required: 'Campo obrigatório' })}
-                placeholder="(00) 00000-0000"
-                className="input"
-              />
-              {errors.whatsapp && (
-                <p className="text-red-500 text-sm mt-1">{errors.whatsapp.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-warmGray font-medium mb-2">
-                Preferência de Contato
-              </label>
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="x"
-                    {...register('preferredContact', { required: 'Selecione uma opção' })}
-                    className="text-coral focus:ring-coral"
-                  />
-                  <span className="text-warmGray">X / Twitter</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="instagram"
-                    {...register('preferredContact', { required: 'Selecione uma opção' })}
-                    className="text-coral focus:ring-coral"
-                  />
-                  <span className="text-warmGray">Instagram</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    value="whatsapp"
-                    {...register('preferredContact', { required: 'Selecione uma opção' })}
-                    className="text-coral focus:ring-coral"
-                  />
-                  <span className="text-warmGray">WhatsApp</span>
-                </label>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Number Grid */}
+          <div className="card-glass lg:col-span-2 h-fit">
+            <h3 className="text-xl font-display font-bold text-warmGray mb-4 text-center">
+              Selecione seus números (1-100)
+            </h3>
+            <NumberGrid
+              availableNumbers={availableNumbers}
+              takenNumbers={takenNumbers}
+              selectedNumbers={selectedNumbers}
+              onToggleNumber={handleToggleNumber}
+              disabled={raffle?.status !== 'active'}
+            />
+            {selectedNumbers.length > 0 && (
+              <div className="mt-4 p-4 bg-coral/10 rounded-2xl">
+                <p className="text-center text-warmGray">
+                  <strong>{selectedNumbers.length}</strong> número(s) selecionado(s): 
+                  <span className="ml-2 font-semibold">
+                    {selectedNumbers.sort((a, b) => a - b).join(', ')}
+                  </span>
+                </p>
               </div>
-              {errors.preferredContact && (
-                <p className="text-red-500 text-sm mt-1">{errors.preferredContact.message}</p>
-              )}
-            </div>
+            )}
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting || selectedNumbers.length === 0 || raffle?.status !== 'active'}
-            className="btn btn-primary w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'Reservando...' : `Reservar ${selectedNumbers.length} Número(s)`}
-          </button>
-        </form>
+          {/* User Info Form */}
+          <div className="lg:col-span-1">
+            <form onSubmit={handleSubmit(onSubmit)} className="card-glass sticky top-4">
+              <h3 className="text-2xl font-display font-bold text-warmGray mb-6 text-center">
+                Suas Informações
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">
+                    <FontAwesomeIcon icon={faTwitter} className="mr-2 text-warmGray-light" />
+                    X / Twitter Handle
+                  </label>
+                  <input
+                    type="text"
+                    {...register('xHandle', { required: 'Campo obrigatório' })}
+                    placeholder="@seu_usuario"
+                    className="input"
+                  />
+                  {errors.xHandle && (
+                    <p className="text-red-500 text-sm mt-1">{errors.xHandle.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">
+                    <FontAwesomeIcon icon={faInstagram} className="mr-2 text-warmGray-light" />
+                    Instagram Handle
+                  </label>
+                  <input
+                    type="text"
+                    {...register('instagramHandle', { required: 'Campo obrigatório' })}
+                    placeholder="@seu_usuario"
+                    className="input"
+                  />
+                  {errors.instagramHandle && (
+                    <p className="text-red-500 text-sm mt-1">{errors.instagramHandle.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">
+                    <FontAwesomeIcon icon={faWhatsapp} className="mr-2 text-warmGray-light" />
+                    WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    {...register('whatsapp', { required: 'Campo obrigatório' })}
+                    placeholder="(00) 00000-0000"
+                    className="input"
+                  />
+                  {errors.whatsapp && (
+                    <p className="text-red-500 text-sm mt-1">{errors.whatsapp.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">
+                    Preferência de Contato
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="x"
+                        {...register('preferredContact', { required: 'Selecione uma opção' })}
+                        className="text-coral focus:ring-coral"
+                      />
+                      <span className="text-warmGray">X / Twitter</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="instagram"
+                        {...register('preferredContact', { required: 'Selecione uma opção' })}
+                        className="text-coral focus:ring-coral"
+                      />
+                      <span className="text-warmGray">Instagram</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="whatsapp"
+                        {...register('preferredContact', { required: 'Selecione uma opção' })}
+                        className="text-coral focus:ring-coral"
+                      />
+                      <span className="text-warmGray">WhatsApp</span>
+                    </label>
+                  </div>
+                  {errors.preferredContact && (
+                    <p className="text-red-500 text-sm mt-1">{errors.preferredContact.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || selectedNumbers.length === 0 || raffle?.status !== 'active'}
+                className="btn btn-primary w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Reservando...' : `Reservar ${selectedNumbers.length} Número(s)`}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

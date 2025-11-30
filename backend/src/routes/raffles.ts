@@ -62,6 +62,11 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       
       .post('/', async ({ body, set }) => {
         try {
+          // Fix timezone: treat input as Brazil time (-03:00) if no timezone specified
+          if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
+            body.endDate = `${body.endDate}-03:00`;
+          }
+
           const raffle = new Raffle(body);
           await raffle.save();
           set.status = 201;
@@ -81,6 +86,11 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
 
       .put('/:id', async ({ params: { id }, body, set }) => {
         try {
+          // Fix timezone: treat input as Brazil time (-03:00) if no timezone specified
+          if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
+            body.endDate = `${body.endDate}-03:00`;
+          }
+
           const raffle = await Raffle.findByIdAndUpdate(id, body, { 
             new: true,
             runValidators: true 
