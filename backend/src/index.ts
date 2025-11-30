@@ -11,7 +11,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+// Remove trailing slash if present to match browser Origin header
+const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
 // Connect to MongoDB
 await connectDB();
