@@ -36,6 +36,7 @@ const AdminDashboard: React.FC = () => {
   
 
   const [pixQRCodeDataUrl, setPixQRCodeDataUrl] = useState<string>('');
+  const [editPixQRCodeDataUrl, setEditPixQRCodeDataUrl] = useState<string>('');
 
   const handleQRCodeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,9 +51,24 @@ const AdminDashboard: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleEditQRCodeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setEditPixQRCodeDataUrl('');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setEditPixQRCodeDataUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const [raffles, setRaffles] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [selectedRaffle, setSelectedRaffle] = useState<any>(null);
+  const [editingRaffle, setEditingRaffle] = useState<any>(null);
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,6 +104,35 @@ const AdminDashboard: React.FC = () => {
       loadRaffles();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao criar rifa');
+    }
+  };
+
+  // Edit form handling
+  const { register: registerEdit, handleSubmit: handleEditSubmitFn, reset: resetEdit, formState: { errors: editErrors } } = useForm<RaffleForm>({
+    defaultValues: {
+      pages: 1,
+      price: 0,
+      expirationHours: 24,
+      pixName: '',
+      pixKey: '',
+      pixQRCode: '',
+    }
+  });
+
+  const onEditSubmit = async (data: RaffleForm) => {
+    if (!editingRaffle) return;
+    try {
+      const updates: any = { ...data };
+      if (editPixQRCodeDataUrl) updates.pixQRCode = editPixQRCodeDataUrl;
+      await raffleAPI.update(editingRaffle._id, updates);
+      alert('Rifa atualizada com sucesso!');
+      setShowEditForm(false);
+      setEditingRaffle(null);
+      resetEdit();
+      setEditPixQRCodeDataUrl('');
+      loadRaffles();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Erro ao atualizar rifa');
     }
   };
 
@@ -143,44 +188,22 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleEditRaffle = async (raffle: any) => {
-    const newEndDate = prompt('Nova data de término (YYYY-MM-DDTHH:mm):', raffle.endDate.slice(0, 16));
-    const newPrice = prompt('Novo preço:', raffle.price);
-    const newPixName = prompt('Nome para PIX:', raffle.pixName || '');
-    const newPixKey = prompt('Chave PIX:', raffle.pixKey || '');
-    const newPixQRCode = prompt('URL do QR Code (deixe em branco para manter atual):', raffle.pixQRCode || '');
-    
-    const updates: any = {};
-    
-    if (newEndDate && newEndDate !== raffle.endDate.slice(0, 16)) {
-      updates.endDate = newEndDate;
-    }
-    
-    if (newPrice && !isNaN(Number(newPrice))) {
-      updates.price = Number(newPrice);
-    }
-
-    if (newPixName !== null && newPixName !== raffle.pixName) {
-      updates.pixName = newPixName;
-    }
-
-    if (newPixKey !== null && newPixKey !== raffle.pixKey) {
-      updates.pixKey = newPixKey;
-    }
-
-    if (newPixQRCode !== null) {
-      // allow clearing with empty string
-      updates.pixQRCode = newPixQRCode === '' ? undefined : newPixQRCode;
-    }
-
-    if (Object.keys(updates).length > 0) {
-      try {
-        await raffleAPI.update(raffle._id, updates);
-        loadRaffles();
-      } catch (err) {
-        alert('Erro ao atualizar rifa');
-      }
-    }
+  const openEditModal = (raffle: any) => {
+    setEditingRaffle(raffle);
+    // prefill the edit form
+    resetEdit({
+      title: raffle.title,
+      description: raffle.description,
+      endDate: raffle.endDate?.slice?.(0, 16) || '',
+      pages: raffle.pages,
+      price: raffle.price,
+      expirationHours: raffle.expirationHours,
+      pixName: raffle.pixName || '',
+      pixKey: raffle.pixKey || '',
+      pixQRCode: raffle.pixQRCode || '',
+    });
+    setEditPixQRCodeDataUrl(raffle.pixQRCode || '');
+    setShowEditForm(true);
   };
 
   const handleUpdatePages = async (raffle: any) => {
@@ -239,6 +262,7 @@ const AdminDashboard: React.FC = () => {
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             Nova Rifa
           </button>
+
         </div>
 
         {/* Create Raffle Form */}
@@ -412,7 +436,7 @@ const AdminDashboard: React.FC = () => {
                 <p className="flex items-center gap-2">
                   <span className="font-semibold">Término:</span> {new Date(raffle.endDate).toLocaleString('pt-BR')}
                   <button 
-                    onClick={() => handleEditRaffle(raffle)}
+                    onClick={() => openEditModal(raffle)}
                     className="text-coral hover:text-coral-dark text-xs"
                     title="Editar data e preço"
                   >
@@ -447,7 +471,7 @@ const AdminDashboard: React.FC = () => {
                   Ver Transações
                 </button>
                 <button
-                  onClick={() => handleEditRaffle(raffle)}
+                  onClick={() => openEditModal(raffle)}
                   className="btn btn-secondary text-sm"
                 >
                   <FontAwesomeIcon icon={faEdit} className="mr-2" />
@@ -571,6 +595,67 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+        {/* Edit Raffle Modal */}
+        {showEditForm && editingRaffle && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="card-glass max-w-2xl w-full overflow-y-auto p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-display font-bold text-warmGray">Editar Rifa</h2>
+                <button onClick={() => { setShowEditForm(false); setEditingRaffle(null); resetEdit(); setEditPixQRCodeDataUrl(''); }} className="btn btn-outline">Fechar</button>
+              </div>
+
+              <form onSubmit={handleEditSubmitFn(onEditSubmit)} className="space-y-4">
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Título</label>
+                  <input type="text" {...registerEdit('title', { required: 'Campo obrigatório' })} className="input" defaultValue={editingRaffle.title} />
+                  {editErrors.title && <p className="text-red-500 text-sm mt-1">{editErrors.title.message}</p>}
+                </div>
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Descrição</label>
+                  <textarea {...registerEdit('description', { required: 'Campo obrigatório' })} className="input" rows={3} defaultValue={editingRaffle.description}></textarea>
+                  {editErrors.description && <p className="text-red-500 text-sm mt-1">{editErrors.description.message}</p>}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">Data/Hora de Término</label>
+                    <input type="datetime-local" {...registerEdit('endDate', { required: 'Campo obrigatório' })} className="input" defaultValue={editingRaffle.endDate?.slice?.(0,16) || ''} />
+                    {editErrors.endDate && <p className="text-red-500 text-sm mt-1">{editErrors.endDate.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">Número de Páginas</label>
+                    <input type="number" min="1" {...registerEdit('pages', { required: 'Campo obrigatório', min: 1, valueAsNumber: true })} className="input" defaultValue={editingRaffle.pages} />
+                    {editErrors.pages && <p className="text-red-500 text-sm mt-1">{editErrors.pages.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">Preço por Número (R$)</label>
+                    <input type="number" step="0.01" min="0" {...registerEdit('price', { required: 'Campo obrigatório', min: 0, valueAsNumber: true })} className="input" defaultValue={editingRaffle.price} />
+                    {editErrors.price && <p className="text-red-500 text-sm mt-1">{editErrors.price.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">Nome para PIX</label>
+                    <input type="text" {...registerEdit('pixName', { required: 'Campo obrigatório' })} className="input" defaultValue={editingRaffle.pixName || ''} />
+                    {editErrors.pixName && <p className="text-red-500 text-sm mt-1">{editErrors.pixName.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">Chave PIX</label>
+                    <input type="text" {...registerEdit('pixKey', { required: 'Campo obrigatório' })} className="input" defaultValue={editingRaffle.pixKey || ''} />
+                    {editErrors.pixKey && <p className="text-red-500 text-sm mt-1">{editErrors.pixKey.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-warmGray font-medium mb-2">QR Code (opcional)</label>
+                    <input type="file" accept="image/*" onChange={handleEditQRCodeFile} className="input" />
+                    {editPixQRCodeDataUrl && <p className="text-sm text-warmGray-light mt-2">Imagem carregada</p>}
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button type="submit" className="btn btn-primary flex-1">Salvar</button>
+                  <button type="button" onClick={() => { setShowEditForm(false); setEditingRaffle(null); resetEdit(); setEditPixQRCodeDataUrl(''); }} className="btn btn-outline flex-1">Cancelar</button>
+                </div>
+              </form>
             </div>
           </div>
         )}
