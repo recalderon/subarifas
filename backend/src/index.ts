@@ -79,7 +79,14 @@ const app = new Elysia()
         // Do not throw on body parse failures
       }
 
-      console.error('Request Error', { method, url, headers, rawBody, error });
+      // Limit raw body to first 4KB to avoid noisy logs
+      if (typeof rawBody === 'string' && rawBody.length > 4096) {
+        rawBody = rawBody.slice(0, 4096) + '... [truncated]';
+      }
+      const extra = {} as any;
+      if (error && (error as any).details) extra.details = (error as any).details;
+      if (error && (error as any).errors) extra.validationErrors = (error as any).errors;
+      console.error('Request Error', { method, url, headers, rawBody, error: String(error), ...extra });
     } catch (e) {
       console.error('Error logging error context', e);
     }

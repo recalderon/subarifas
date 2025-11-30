@@ -56,6 +56,7 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
     }
 
     await receipt.save();
+    console.info('Updated receipt status', { receiptId, status: body.status, changedBy: body.changedBy });
 
     return receipt;
   }, {
