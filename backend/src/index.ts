@@ -7,6 +7,7 @@ import { selectionRoutes } from './routes/selections';
 import { receiptRoutes } from './routes/receipts';
 import { adminRoutes } from './routes/admin';
 import { eventBus } from './utils/events';
+import { startExpirationJob } from './jobs/expiration-job';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -17,6 +18,9 @@ const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').repla
 
 // Connect to MongoDB
 await connectDB();
+
+// Start background jobs
+startExpirationJob();
 
 const app = new Elysia()
   // .use(websocket())
