@@ -11,7 +11,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .get('/receipt/:receiptId', async ({ params: { receiptId }, set }) => {
     console.log(`Fetching receipt: ${receiptId}`);
     const selections = await Selection.find({ receiptId })
-      .populate('raffleId', 'title description endDate')
+      .populate('raffleId', 'title description endDate pixName pixKey pixQRCode price')
       .sort({ number: 1 });
 
     console.log(`Found ${selections?.length} selections for receipt ${receiptId}`);

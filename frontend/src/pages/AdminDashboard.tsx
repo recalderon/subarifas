@@ -16,6 +16,9 @@ interface RaffleForm {
   pages: number;
   price: number;
   expirationHours: number;
+  pixName: string;
+  pixKey: string;
+  pixQRCode?: string;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -25,9 +28,27 @@ const AdminDashboard: React.FC = () => {
     defaultValues: {
       pages: 1,
       price: 0,
-      expirationHours: 24
+      expirationHours: 24,
+      pixName: '',
+      pixKey: '',
     }
   });
+  
+
+  const [pixQRCodeDataUrl, setPixQRCodeDataUrl] = useState<string>('');
+
+  const handleQRCodeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPixQRCodeDataUrl('');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPixQRCodeDataUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const [raffles, setRaffles] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -56,10 +77,14 @@ const AdminDashboard: React.FC = () => {
 
   const onSubmit = async (data: RaffleForm) => {
     try {
-      await raffleAPI.create(data);
+      // Include QR data URL if present
+      const payload: any = { ...data };
+      if (pixQRCodeDataUrl) payload.pixQRCode = pixQRCodeDataUrl;
+      await raffleAPI.create(payload);
       alert('Rifa criada com sucesso!');
       setShowForm(false);
       reset();
+      setPixQRCodeDataUrl('');
       loadRaffles();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao criar rifa');
@@ -121,6 +146,9 @@ const AdminDashboard: React.FC = () => {
   const handleEditRaffle = async (raffle: any) => {
     const newEndDate = prompt('Nova data de término (YYYY-MM-DDTHH:mm):', raffle.endDate.slice(0, 16));
     const newPrice = prompt('Novo preço:', raffle.price);
+    const newPixName = prompt('Nome para PIX:', raffle.pixName || '');
+    const newPixKey = prompt('Chave PIX:', raffle.pixKey || '');
+    const newPixQRCode = prompt('URL do QR Code (deixe em branco para manter atual):', raffle.pixQRCode || '');
     
     const updates: any = {};
     
@@ -130,6 +158,19 @@ const AdminDashboard: React.FC = () => {
     
     if (newPrice && !isNaN(Number(newPrice))) {
       updates.price = Number(newPrice);
+    }
+
+    if (newPixName !== null && newPixName !== raffle.pixName) {
+      updates.pixName = newPixName;
+    }
+
+    if (newPixKey !== null && newPixKey !== raffle.pixKey) {
+      updates.pixKey = newPixKey;
+    }
+
+    if (newPixQRCode !== null) {
+      // allow clearing with empty string
+      updates.pixQRCode = newPixQRCode === '' ? undefined : newPixQRCode;
     }
 
     if (Object.keys(updates).length > 0) {
@@ -265,6 +306,36 @@ const AdminDashboard: React.FC = () => {
                     placeholder="0.00"
                   />
                   {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Nome para PIX</label>
+                  <input
+                    type="text"
+                    {...register('pixName', { required: 'Campo obrigatório' })}
+                    className="input"
+                    placeholder="Nome do recebedor"
+                  />
+                  {errors.pixName && <p className="text-red-500 text-sm mt-1">{errors.pixName.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">Chave PIX</label>
+                  <input
+                    type="text"
+                    {...register('pixKey', { required: 'Campo obrigatório' })}
+                    className="input"
+                    placeholder="chave@pix ou telefone"
+                  />
+                  {errors.pixKey && <p className="text-red-500 text-sm mt-1">{errors.pixKey.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-warmGray font-medium mb-2">QR Code (opcional)</label>
+                  <input type="file" accept="image/*" onChange={handleQRCodeFile} className="input" />
+                  {pixQRCodeDataUrl && (
+                    <p className="text-sm text-warmGray-light mt-2">Imagem carregada</p>
+                  )}
                 </div>
 
                 <div>

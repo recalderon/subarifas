@@ -206,6 +206,20 @@ const Receipt: React.FC = () => {
             </button>
           </div>
 
+          {/* PIX Payment Instruction */}
+          <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40 mt-4">
+            <h3 className="text-lg font-bold text-warmGray mb-2">Pagamento via PIX</h3>
+            <p className="text-warmGray-light mb-4">
+              Para finalizar, envie um PIX no valor de <strong>R$ { (selections.length * (raffle.price || 0)).toFixed(2) }</strong> para a seguinte chave <strong>{raffle.pixKey}</strong> no nome de <strong>{raffle.pixName}</strong>.
+            </p>
+            <p className="text-sm text-warmGray-light mb-4">O tempo limite para realizar o pagamento é de 30 minutos.</p>
+            {raffle.pixQRCode && (
+              <div className="text-center">
+                <img src={raffle.pixQRCode} alt="PIX QR Code" className="mx-auto h-40 w-auto" />
+              </div>
+            )}
+          </div>
+
           <div className="text-center mt-6">
             <p className="text-xs text-warmGray-light">
               ID do Recibo: <span className="font-mono select-all">{formatReceiptId(id || '')}</span>

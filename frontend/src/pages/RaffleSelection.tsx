@@ -136,7 +136,7 @@ const RaffleSelection: React.FC = () => {
       // Build a numbers array to submit in a single request
       const numbers = selectedNumbers.map(n => ({ number: n, pageNumber: currentPage }));
 
-      await selectionAPI.create(id!, {
+      const res = await selectionAPI.create(id!, {
         receiptId,
         numbers,
         user: {
@@ -147,9 +147,10 @@ const RaffleSelection: React.FC = () => {
         },
       });
 
+      const returnedId = res?.data?.receiptId || receiptId;
       setShowSuccess(true);
       setTimeout(() => {
-        navigate(`/receipt/${receiptId}`);
+        navigate(`/receipt/${returnedId}`);
       }, 2000);
     } catch (err: any) {
       // If server reports an error, show it (422 validation errors often return payload with message)
