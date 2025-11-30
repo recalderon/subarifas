@@ -42,7 +42,7 @@ const RaffleSelection: React.FC = () => {
 
   // Polling for updates
   useEffect(() => {
-    if (!id || !raffle) return;
+    if (!id || !raffle || showSuccess) return; // Stop polling if success screen is shown
 
     const interval = setInterval(async () => {
       try {
@@ -55,14 +55,17 @@ const RaffleSelection: React.FC = () => {
           
           if (newlyTaken.length > 0) {
             // Check if any of the newly taken numbers were selected by the current user
-            setSelectedNumbers(currentSelected => {
-              const conflicts = currentSelected.filter(n => newlyTaken.includes(n));
-              if (conflicts.length > 0) {
-                alert(`O(s) número(s) ${conflicts.join(', ')} acabou de ser reservado por outra pessoa!`);
-                return currentSelected.filter(n => !newlyTaken.includes(n));
-              }
-              return currentSelected;
-            });
+            // BUT ignore this check if we are currently submitting (because WE are the ones taking them)
+            if (!submitting) {
+              setSelectedNumbers(currentSelected => {
+                const conflicts = currentSelected.filter(n => newlyTaken.includes(n));
+                if (conflicts.length > 0) {
+                  alert(`O(s) número(s) ${conflicts.join(', ')} acabou de ser reservado por outra pessoa!`);
+                  return currentSelected.filter(n => !newlyTaken.includes(n));
+                }
+                return currentSelected;
+              });
+            }
           }
           return newTakenNumbers;
         });
@@ -74,7 +77,7 @@ const RaffleSelection: React.FC = () => {
     }, 3000); // Poll every 3 seconds
 
     return () => clearInterval(interval);
-  }, [id, currentPage, raffle]);
+  }, [id, currentPage, raffle, submitting, showSuccess]);
 
   const loadRaffle = async () => {
     try {
@@ -116,9 +119,13 @@ const RaffleSelection: React.FC = () => {
     setSubmitting(true);
 
     try {
+      // Generate a unique receipt ID for this batch
+      const receiptId = crypto.randomUUID();
+
       // Submit each selected number
       for (const number of selectedNumbers) {
         await selectionAPI.create(id!, {
+          receiptId,
           number,
           pageNumber: currentPage,
           user: {
@@ -132,8 +139,8 @@ const RaffleSelection: React.FC = () => {
 
       setShowSuccess(true);
       setTimeout(() => {
-        navigate('/');
-      }, 3000);
+        navigate(`/receipt/${receiptId}`);
+      }, 2000);
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao reservar números');
       loadAvailableNumbers(); // Reload to get updated numbers

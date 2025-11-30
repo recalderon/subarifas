@@ -5,6 +5,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
 import RaffleSelection from './pages/RaffleSelection';
+import Receipt from './pages/Receipt';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ServerWakeUp from './components/layout/ServerWakeUp';
@@ -29,6 +30,7 @@ const AppContent: React.FC = () => {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/raffle/:id" element={<RaffleSelection />} />
+          <Route path="/receipt/:id" element={<Receipt />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
           {/* Protected Admin Routes */}

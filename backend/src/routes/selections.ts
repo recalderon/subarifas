@@ -5,6 +5,19 @@ import { hasRaffleEnded } from '../utils/datetime';
 import { eventBus } from '../utils/events';
 
 export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
+  .get('/receipt/:receiptId', async ({ params: { receiptId }, set }) => {
+    const selections = await Selection.find({ receiptId })
+      .populate('raffleId', 'title description endDate')
+      .sort({ number: 1 });
+
+    if (!selections || selections.length === 0) {
+      set.status = 404;
+      return { error: 'Receipt not found' };
+    }
+
+    return selections;
+  })
+
   .get('/:raffleId', async ({ params: { raffleId }, set }) => {
     const selections = await Selection.find({ raffleId })
       .sort({ pageNumber: 1, number: 1 });
@@ -55,6 +68,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       // Create selection
       const selection = new Selection({
         raffleId,
+        receiptId: body.receiptId,
         number: body.number,
         pageNumber: body.pageNumber,
         user: body.user,
@@ -78,6 +92,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
     }
   }, {
     body: t.Object({
+      receiptId: t.String(),
       number: t.Number({ minimum: 1, maximum: 100 }),
       pageNumber: t.Number({ minimum: 1 }),
       user: t.Object({

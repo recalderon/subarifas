@@ -34,6 +34,7 @@ export const raffleAPI = {
 // Selection API
 export const selectionAPI = {
   getByRaffle: (raffleId: string) => api.get(`/api/selections/${raffleId}`),
+  getReceipt: (receiptId: string) => api.get(`/api/selections/receipt/${receiptId}`),
   create: (raffleId: string, data: any) => api.post(`/api/selections/${raffleId}`, data),
 };
 

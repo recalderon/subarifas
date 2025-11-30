@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ISelection extends Document {
   raffleId: mongoose.Types.ObjectId;
+  receiptId: string;
   number: number;
   pageNumber: number;
   user: {
@@ -19,6 +20,11 @@ const SelectionSchema = new Schema<ISelection>(
       type: Schema.Types.ObjectId,
       ref: 'Raffle',
       required: true,
+    },
+    receiptId: {
+      type: String,
+      required: true,
+      index: true,
     },
     number: {
       type: Number,
