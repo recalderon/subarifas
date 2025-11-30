@@ -71,6 +71,7 @@ const AdminDashboard: React.FC = () => {
   const [editingRaffle, setEditingRaffle] = useState<any>(null);
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -171,6 +172,7 @@ const AdminDashboard: React.FC = () => {
       const response = await receiptAPI.getByRaffle(raffleId);
       setReceipts(response.data);
       setSelectedRaffle(raffles.find(r => r._id === raffleId));
+      setSearchQuery(''); // Reset search when opening new raffle
     } catch (err) {
       alert('Erro ao carregar transações');
     }
@@ -508,17 +510,76 @@ const AdminDashboard: React.FC = () => {
                 </button>
               </div>
 
+              {/* Search Bar */}
+              <div className="mb-6">
+                <input
+                  type="text"
+                  placeholder="Buscar por ID, usuário, número, status..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input w-full"
+                />
+              </div>
+
               <div className="bg-mint/20 rounded-2xl p-4 mb-6">
                 <p className="text-warmGray">
-                  <strong>Total de Transações:</strong> {receipts.length}
+                  <strong>Total de Transações:</strong> {receipts.filter((receipt: any) => {
+                    if (!searchQuery) return true;
+                    const query = searchQuery.toLowerCase();
+                    const receiptId = formatReceiptId(receipt.receiptId).toLowerCase();
+                    const xHandle = receipt.user.xHandle?.toLowerCase() || '';
+                    const instagram = receipt.user.instagramHandle?.toLowerCase() || '';
+                    const whatsapp = receipt.user.whatsapp?.toLowerCase() || '';
+                    const numbers = receipt.numbers.map((n: any) => n.number.toString()).join(' ');
+                    const status = receipt.status.toLowerCase();
+                    
+                    return receiptId.includes(query) ||
+                           xHandle.includes(query) ||
+                           instagram.includes(query) ||
+                           whatsapp.includes(query) ||
+                           numbers.includes(query) ||
+                           status.includes(query);
+                  }).length}
                 </p>
                 <p className="text-warmGray">
-                  <strong>Arrecadado Total:</strong> R$ {receipts.reduce((sum, r) => sum + (r.totalAmount || 0), 0).toFixed(2)}
+                  <strong>Arrecadado Total:</strong> R$ {receipts.filter((receipt: any) => {
+                    if (!searchQuery) return true;
+                    const query = searchQuery.toLowerCase();
+                    const receiptId = formatReceiptId(receipt.receiptId).toLowerCase();
+                    const xHandle = receipt.user.xHandle?.toLowerCase() || '';
+                    const instagram = receipt.user.instagramHandle?.toLowerCase() || '';
+                    const whatsapp = receipt.user.whatsapp?.toLowerCase() || '';
+                    const numbers = receipt.numbers.map((n: any) => n.number.toString()).join(' ');
+                    const status = receipt.status.toLowerCase();
+                    
+                    return receiptId.includes(query) ||
+                           xHandle.includes(query) ||
+                           instagram.includes(query) ||
+                           whatsapp.includes(query) ||
+                           numbers.includes(query) ||
+                           status.includes(query);
+                  }).reduce((sum, r) => sum + (r.totalAmount || 0), 0).toFixed(2)}
                 </p>
               </div>
 
               <div className="space-y-4">
-                {receipts.map((receipt: any) => (
+                {receipts.filter((receipt: any) => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  const receiptId = formatReceiptId(receipt.receiptId).toLowerCase();
+                  const xHandle = receipt.user.xHandle?.toLowerCase() || '';
+                  const instagram = receipt.user.instagramHandle?.toLowerCase() || '';
+                  const whatsapp = receipt.user.whatsapp?.toLowerCase() || '';
+                  const numbers = receipt.numbers.map((n: any) => n.number.toString()).join(' ');
+                  const status = receipt.status.toLowerCase();
+                  
+                  return receiptId.includes(query) ||
+                         xHandle.includes(query) ||
+                         instagram.includes(query) ||
+                         whatsapp.includes(query) ||
+                         numbers.includes(query) ||
+                         status.includes(query);
+                }).map((receipt: any) => (
                   <div key={receipt._id} className="bg-white rounded-2xl p-4 shadow-soft">
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -533,11 +594,13 @@ const AdminDashboard: React.FC = () => {
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                           receipt.status === 'paid' ? 'bg-green-200 text-green-800' :
                           receipt.status === 'waiting_payment' ? 'bg-yellow-200 text-yellow-800' :
+                          receipt.status === 'receipt_uploaded' ? 'bg-blue-200 text-blue-800' :
                           receipt.status === 'expired' ? 'bg-red-200 text-red-800' :
                           'bg-gray-200 text-gray-800'
                         }`}>
                           {receipt.status === 'paid' ? 'Pago' :
                            receipt.status === 'waiting_payment' ? 'Aguardando Pagamento' :
+                           receipt.status === 'receipt_uploaded' ? 'Comprovante Enviado' :
                            receipt.status === 'expired' ? 'Expirado' :
                            'Criado'}
                         </span>
@@ -548,6 +611,7 @@ const AdminDashboard: React.FC = () => {
                         >
                           <option value="created">Criado</option>
                           <option value="waiting_payment">Aguardando Pagamento</option>
+                          <option value="receipt_uploaded">Comprovante Enviado</option>
                           <option value="paid">Pago</option>
                           <option value="expired">Expirado</option>
                         </select>
