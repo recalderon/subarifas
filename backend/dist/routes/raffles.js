@@ -87,6 +87,24 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
             body.endDate = `${body.endDate}-03:00`;
         }
+        // Coerce numeric fields coming as strings
+        if (body.pages && typeof body.pages === 'string') {
+            body.pages = Number(body.pages);
+        }
+        if (body.pages && (!Number.isInteger(body.pages) || body.pages < 1)) {
+            set.status = 400;
+            return { error: 'pages must be an integer >= 1' };
+        }
+        if (body.price && typeof body.price === 'string') {
+            body.price = Number(body.price);
+        }
+        if (body.expirationHours && typeof body.expirationHours === 'string') {
+            body.expirationHours = Number(body.expirationHours);
+        }
+        if (body.expirationHours && (!Number.isInteger(body.expirationHours) || body.expirationHours < 1)) {
+            set.status = 400;
+            return { error: 'expirationHours must be an integer >= 1' };
+        }
         const raffle = new Raffle(body);
         await raffle.save();
         set.status = 201;
@@ -103,6 +121,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         endDate: t.String(),
         pages: t.Number(),
         price: t.Number(),
+        expirationHours: t.Optional(t.Number()),
     }),
 })
     .put('/:id', async ({ params: { id }, body, set }) => {
@@ -110,6 +129,24 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         // Fix timezone: treat input as Brazil time (-03:00) if no timezone specified
         if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
             body.endDate = `${body.endDate}-03:00`;
+        }
+        // Coerce numeric fields coming as strings
+        if (body.pages && typeof body.pages === 'string') {
+            body.pages = Number(body.pages);
+        }
+        if (body.pages && (!Number.isInteger(body.pages) || body.pages < 1)) {
+            set.status = 400;
+            return { error: 'pages must be an integer >= 1' };
+        }
+        if (body.price && typeof body.price === 'string') {
+            body.price = Number(body.price);
+        }
+        if (body.expirationHours && typeof body.expirationHours === 'string') {
+            body.expirationHours = Number(body.expirationHours);
+        }
+        if (body.expirationHours && (!Number.isInteger(body.expirationHours) || body.expirationHours < 1)) {
+            set.status = 400;
+            return { error: 'expirationHours must be an integer >= 1' };
         }
         const raffle = await Raffle.findByIdAndUpdate(id, body, {
             new: true,
@@ -132,6 +169,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         endDate: t.Optional(t.String()),
         pages: t.Optional(t.Number()),
         price: t.Optional(t.Number()),
+        expirationHours: t.Optional(t.Number()),
         winnerNumber: t.Optional(t.Number()),
     }),
 })

@@ -71,6 +71,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
             index: {
                 post: {
                     body: {
+                        expirationHours?: number | undefined;
                         title: string;
                         description: string;
                         endDate: string;
@@ -97,6 +98,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         endDate?: string | undefined;
                         pages?: number | undefined;
                         price?: number | undefined;
+                        expirationHours?: number | undefined;
                         winnerNumber?: number | undefined;
                     };
                     params: Record<"id", string>;
