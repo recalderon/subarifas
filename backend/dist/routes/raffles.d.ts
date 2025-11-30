@@ -72,11 +72,14 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                 post: {
                     body: {
                         expirationHours?: number | undefined;
+                        pixQRCode?: string | undefined;
                         title: string;
                         description: string;
                         endDate: string;
                         pages: number;
                         price: number;
+                        pixName: string;
+                        pixKey: string;
                     };
                     params: Record<never, string>;
                     query: unknown;
@@ -99,6 +102,9 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         pages?: number | undefined;
                         price?: number | undefined;
                         expirationHours?: number | undefined;
+                        pixName?: string | undefined;
+                        pixKey?: string | undefined;
+                        pixQRCode?: string | undefined;
                         winnerNumber?: number | undefined;
                     };
                     params: Record<"id", string>;

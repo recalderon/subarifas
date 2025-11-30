@@ -7,6 +7,9 @@ export interface IRaffle extends Document {
     pages: number;
     price: number;
     expirationHours: number;
+    pixName: string;
+    pixKey: string;
+    pixQRCode?: string;
     winnerNumber?: number;
     createdAt: Date;
     updatedAt: Date;

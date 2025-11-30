@@ -30,6 +30,21 @@ const RaffleSchema = new Schema({
         min: 0,
         default: 0,
     },
+    pixName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    pixKey: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+    pixQRCode: {
+        type: String,
+        required: false,
+        trim: true,
+    },
     expirationHours: {
         type: Number,
         required: true,
