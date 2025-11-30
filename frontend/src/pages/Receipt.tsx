@@ -37,7 +37,9 @@ const Receipt: React.FC = () => {
 
       // Fetch receipt details for status
       const receiptResponse = await receiptAPI.getById(id!);
-      console.log('Receipt status from API:', receiptResponse.data.status);
+      console.log('Full receipt response:', receiptResponse);
+      console.log('Receipt data:', receiptResponse.data);
+      console.log('Receipt status from API:', receiptResponse.data?.status);
       setReceipt(receiptResponse.data);
 
     } catch (err) {
