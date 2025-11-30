@@ -56,8 +56,33 @@ const app = new Elysia()
   .use(selectionRoutes)
   .use(receiptRoutes)
   .use(adminRoutes)
-  .onError(({ code, error, set }) => {
-    console.error('Error:', error);
+  .onError(async ({ code, error, set, request }) => {
+    // Log error with request information to aid debugging in prod
+    try {
+      const method = request?.method || 'UNKNOWN';
+      const url = request?.url || 'UNKNOWN';
+      const headers = request ? Object.fromEntries(request.headers.entries()) : {};
+      // Mask sensitive headers
+      if (headers.authorization) headers.authorization = 'REDACTED';
+
+      // Try to capture request body safely
+      let rawBody = undefined;
+      try {
+        // Clone the request stream so we don't consume it, if supported
+        if (typeof request.clone === 'function') {
+          const clone = request.clone();
+          rawBody = await clone.text();
+        } else {
+          rawBody = await (request as any).text?.();
+        }
+      } catch (e) {
+        // Do not throw on body parse failures
+      }
+
+      console.error('Request Error', { method, url, headers, rawBody, error });
+    } catch (e) {
+      console.error('Error logging error context', e);
+    }
     
     if (code === 'NOT_FOUND') {
       set.status = 404;
@@ -65,7 +90,7 @@ const app = new Elysia()
     }
 
     if (code === 'VALIDATION') {
-      set.status = 400;
+      set.status = 422;
       return { error: 'Validation error', details: error.message };
     }
 

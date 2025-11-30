@@ -98,7 +98,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     app
       .use(authMiddleware)
       
-      .post('/', async ({ body, set }) => {
+      .post('/', async ({ body, set, request }) => {
         try {
           // Fix timezone: treat input as Brazil time (-03:00) if no timezone specified
           if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
@@ -128,6 +128,11 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
           set.status = 201;
           return raffle;
         } catch (error: any) {
+          console.error('Error creating raffle', {
+            request: request?.url,
+            body,
+            error: error?.message || error,
+          });
           set.status = 400;
           return { error: error.message };
         }
@@ -142,7 +147,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         }),
       })
 
-      .put('/:id', async ({ params: { id }, body, set }) => {
+      .put('/:id', async ({ params: { id }, body, set, request }) => {
         try {
           // Fix timezone: treat input as Brazil time (-03:00) if no timezone specified
           if (body.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(body.endDate)) {
@@ -179,6 +184,12 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
 
           return raffle;
         } catch (error: any) {
+          console.error('Error updating raffle', {
+            request: request?.url,
+            params: { id },
+            body,
+            error: error?.message || error,
+          });
           set.status = 400;
           return { error: error.message };
         }
