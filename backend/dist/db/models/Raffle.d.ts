@@ -2,7 +2,7 @@ import mongoose, { Document } from 'mongoose';
 export interface IRaffle extends Document {
     title: string;
     description: string;
-    status: 'active' | 'ended';
+    status: 'open' | 'waiting' | 'closed';
     endDate: Date;
     pages: number;
     price: number;

@@ -26,7 +26,7 @@ export const raffleAPI = {
     api.get(`/api/raffles/${id}/available?page=${page}`),
   create: (data: any) => api.post('/api/raffles', data),
   update: (id: string, data: any) => api.put(`/api/raffles/${id}`, data),
-  updateStatus: (id: string, status: 'active' | 'ended') => 
+  updateStatus: (id: string, status: 'open' | 'waiting' | 'closed') => 
     api.patch(`/api/raffles/${id}/status`, { status }),
   delete: (id: string) => api.delete(`/api/raffles/${id}`),
 };

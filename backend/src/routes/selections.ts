@@ -25,9 +25,9 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .get('/test-db', async ({ set }) => {
     try {
       const testId = 'test-' + Date.now();
-      // Find any active raffle
-      const raffle = await Raffle.findOne({ status: 'active' });
-      if (!raffle) return { error: 'No active raffle found for test' };
+      // Find any open raffle
+      const raffle = await Raffle.findOne({ status: 'open' });
+      if (!raffle) return { error: 'No open raffle found for test' };
 
       const selection = new Selection({
         raffleId: raffle._id,
@@ -72,10 +72,10 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         return { error: 'Raffle not found' };
       }
 
-      // Check if raffle is active
-      if (raffle.status !== 'active') {
+      // Check if raffle is open
+      if (raffle.status !== 'open') {
         set.status = 400;
-        return { error: 'Raffle is not active' };
+        return { error: 'Raffle is not open' };
       }
 
       // Check if raffle has ended

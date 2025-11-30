@@ -115,7 +115,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                 status: {
                     patch: {
                         body: {
-                            status: "active" | "ended";
+                            status: "open" | "waiting" | "closed";
                         };
                         params: Record<"id", string>;
                         query: unknown;

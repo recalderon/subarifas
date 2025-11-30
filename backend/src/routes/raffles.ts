@@ -170,7 +170,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
         return raffle;
       }, {
         body: t.Object({
-          status: t.Union([t.Literal('active'), t.Literal('ended')]),
+          status: t.Union([t.Literal('open'), t.Literal('waiting'), t.Literal('closed')]),
         }),
       })
 

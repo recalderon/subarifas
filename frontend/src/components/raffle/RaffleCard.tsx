@@ -8,7 +8,7 @@ interface RaffleCardProps {
     _id: string;
     title: string;
     description: string;
-    status: 'active' | 'ended';
+    status: 'open' | 'waiting' | 'closed';
     endDate: string;
     pages: number;
     price: number;
@@ -26,7 +26,7 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
   
   const endDate = new Date(raffle.endDate);
   const isExpired = new Date() > endDate;
-  const isActive = raffle.status === 'active' && !isExpired;
+  const isActive = raffle.status === 'open' && !isExpired;
   
   // Use stats if available, otherwise fallback to calculation
   const totalNumbers = raffle.stats?.total || raffle.pages * 100;

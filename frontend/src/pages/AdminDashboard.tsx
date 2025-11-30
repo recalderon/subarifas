@@ -64,7 +64,16 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleToggleStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'active' ? 'ended' : 'active';
+    // Cycle through: open -> waiting -> closed -> open
+    let newStatus: 'open' | 'waiting' | 'closed';
+    if (currentStatus === 'open') {
+      newStatus = 'waiting';
+    } else if (currentStatus === 'waiting') {
+      newStatus = 'closed';
+    } else {
+      newStatus = 'open';
+    }
+    
     try {
       await raffleAPI.updateStatus(id, newStatus);
       loadRaffles();
@@ -278,11 +287,13 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  raffle.status === 'active' 
+                  raffle.status === 'open' 
                     ? 'bg-teal-light text-warmGray' 
+                    : raffle.status === 'waiting'
+                    ? 'bg-yellow-200 text-warmGray'
                     : 'bg-gray-200 text-gray-500'
                 }`}>
-                  {raffle.status === 'active' ? 'Ativa' : 'Encerrada'}
+                  {raffle.status === 'open' ? 'Aberta' : raffle.status === 'waiting' ? 'Aguardando Sorteio' : 'Encerrada'}
                 </span>
               </div>
 
@@ -325,10 +336,10 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => handleToggleStatus(raffle._id, raffle.status)}
-                  className={`btn ${raffle.status === 'active' ? 'btn-outline' : 'btn-secondary'} text-sm`}
+                  className="btn btn-secondary text-sm"
                 >
-                  <FontAwesomeIcon icon={raffle.status === 'active' ? faStop : faPlay} className="mr-2" />
-                  {raffle.status === 'active' ? 'Encerrar' : 'Ativar'}
+                  <FontAwesomeIcon icon={raffle.status === 'open' ? faStop : raffle.status === 'waiting' ? faTrophy : faPlay} className="mr-2" />
+                  {raffle.status === 'open' ? 'Aguardar Sorteio' : raffle.status === 'waiting' ? 'Encerrar' : 'Reabrir'}
                 </button>
                 <button
                   onClick={() => viewSelections(raffle._id)}

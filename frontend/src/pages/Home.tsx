@@ -8,7 +8,7 @@ interface Raffle {
   _id: string;
   title: string;
   description: string;
-  status: 'active' | 'ended';
+  status: 'open' | 'waiting' | 'closed';
   endDate: string;
   pages: number;
   price: number;
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
     }
   };
 
-  const activeRaffles = raffles.filter(r => r.status === 'active');
+  const activeRaffles = raffles.filter(r => r.status === 'open');
 
   return (
     <div className="min-h-screen bg-summer bg-wave">

@@ -184,7 +184,7 @@ const RaffleSelection: React.FC = () => {
 
   const endDate = new Date(raffle.endDate);
   const isExpired = new Date() > endDate;
-  const isActive = raffle.status === 'active' && !isExpired;
+  const isActive = raffle.status === 'open' && !isExpired;
 
   if (!isActive) {
     return (
@@ -199,7 +199,7 @@ const RaffleSelection: React.FC = () => {
           </button>
 
           <div className="card-glass max-w-2xl mx-auto text-center py-12">
-            {raffle.winnerNumber ? (
+            {raffle.status === 'closed' && raffle.winnerNumber ? (
               <>
                 <FontAwesomeIcon icon={faTrophy} className="text-6xl text-yellow-400 drop-shadow-lg mb-6" />
                 <h2 className="text-3xl font-display font-bold text-warmGray mb-2">
@@ -216,14 +216,24 @@ const RaffleSelection: React.FC = () => {
                   </div>
                 </div>
               </>
-            ) : (
+            ) : raffle.status === 'waiting' ? (
               <>
-                <FontAwesomeIcon icon={faClock} className="text-6xl text-gray-400 mb-6" />
+                <FontAwesomeIcon icon={faClock} className="text-6xl text-yellow-400 mb-6" />
                 <h2 className="text-3xl font-display font-bold text-warmGray mb-2">
                   Aguardando Sorteio
                 </h2>
                 <p className="text-warmGray-light">
                   Esta rifa foi encerrada e o sorteio será realizado em breve.
+                </p>
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faClock} className="text-6xl text-gray-400 mb-6" />
+                <h2 className="text-3xl font-display font-bold text-warmGray mb-2">
+                  Rifa Encerrada
+                </h2>
+                <p className="text-warmGray-light">
+                  Esta rifa não está mais aceitando participações.
                 </p>
               </>
             )}
@@ -298,7 +308,7 @@ const RaffleSelection: React.FC = () => {
               takenNumbers={takenNumbers}
               selectedNumbers={selectedNumbers}
               onToggleNumber={handleToggleNumber}
-              disabled={raffle?.status !== 'active'}
+              disabled={raffle?.status !== 'open'}
             />
             {selectedNumbers.length > 0 && (
               <div className="mt-4 p-4 bg-coral/10 rounded-2xl">
@@ -436,7 +446,7 @@ const RaffleSelection: React.FC = () => {
 
               <button
                 type="submit"
-                disabled={submitting || selectedNumbers.length === 0 || raffle?.status !== 'active'}
+                disabled={submitting || selectedNumbers.length === 0 || raffle?.status !== 'open'}
                 className="btn btn-primary w-full mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Reservando...' : `Reservar ${selectedNumbers.length} Número(s)`}

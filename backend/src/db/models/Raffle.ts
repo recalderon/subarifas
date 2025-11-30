@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IRaffle extends Document {
   title: string;
   description: string;
-  status: 'active' | 'ended';
+  status: 'open' | 'waiting' | 'closed';
   endDate: Date;
   pages: number;
   price: number;
@@ -26,8 +26,8 @@ const RaffleSchema = new Schema<IRaffle>(
     },
     status: {
       type: String,
-      enum: ['active', 'ended'],
-      default: 'active',
+      enum: ['open', 'waiting', 'closed'],
+      default: 'open',
     },
     winnerNumber: {
       type: Number,

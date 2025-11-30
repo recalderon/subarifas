@@ -12,8 +12,8 @@ const RaffleSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'ended'],
-        default: 'active',
+        enum: ['open', 'waiting', 'closed'],
+        default: 'open',
     },
     winnerNumber: {
         type: Number,
