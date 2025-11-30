@@ -14,7 +14,8 @@ export const adminRoutes = new Elysia({ prefix: '/api/admin' })
   )
 
   // Login route
-  .post('/login', async ({ body, jwt, set }) => {
+  .post('/login', async (context) => {
+    const { body, jwt, set } = context as any;
     try {
       const admin = await Admin.findOne({ username: body.username });
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faClock, faCheckCircle, faTimesCircle, faTrophy, faTicketAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faClock, faTimesCircle, faTrophy, faTicketAlt } from '@fortawesome/free-solid-svg-icons';
 
 interface RaffleCardProps {
   raffle: {
