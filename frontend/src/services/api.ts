@@ -53,7 +53,7 @@ export const adminAPI = {
 export const receiptAPI = {
   getByRaffle: (raffleId: string) => api.get(`/api/receipts/${raffleId}`),
   getById: (receiptId: string) => api.get(`/api/receipts/detail/${receiptId}`),
-  updateStatus: (receiptId: string, status: 'created' | 'waiting_payment' | 'expired' | 'paid', changedBy?: string, note?: string) =>
+  updateStatus: (receiptId: string, status: 'waiting_payment' | 'receipt_uploaded' | 'expired' | 'paid', changedBy?: string, note?: string) =>
     api.patch(`/api/receipts/${receiptId}/status`, { status, changedBy, note }),
   uploadReceipt: (receiptId: string, file: File) => {
     const formData = new FormData();
