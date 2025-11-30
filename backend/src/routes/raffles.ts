@@ -8,7 +8,22 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
   // Public routes
   .get('/', async () => {
     const raffles = await Raffle.find().sort({ createdAt: -1 });
-    return raffles.map(r => r.toJSON());
+    
+    const rafflesWithStats = await Promise.all(raffles.map(async (r) => {
+      const takenCount = await Selection.countDocuments({ raffleId: r._id });
+      const totalNumbers = r.pages * 100;
+      
+      return {
+        ...r.toJSON(),
+        stats: {
+          total: totalNumbers,
+          available: totalNumbers - takenCount,
+          taken: takenCount
+        }
+      };
+    }));
+
+    return rafflesWithStats;
   })
 
   .get('/:id', async ({ params: { id }, set }) => {
@@ -112,6 +127,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
           description: t.Optional(t.String()),
           endDate: t.Optional(t.String()),
           pages: t.Optional(t.Number()),
+          winnerNumber: t.Optional(t.Number()),
         }),
       })
 

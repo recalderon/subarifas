@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faPlus, faPlay, faStop, faTrash, faEye, faBook, faEdit 
+  faPlus, faPlay, faStop, faTrash, faEye, faBook, faEdit, faTrophy 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { raffleAPI, adminAPI } from '../services/api';
@@ -100,6 +100,28 @@ const AdminDashboard: React.FC = () => {
         loadRaffles();
       } catch (err) {
         alert('Erro ao atualizar páginas');
+      }
+    }
+  };
+
+  const handleSetWinner = async (raffle: any) => {
+    const winner = prompt('Número do ganhador:', raffle.winnerNumber || '');
+    if (winner !== null) { // Allow clearing if empty string passed? prompt returns null on cancel
+      const num = winner === '' ? undefined : Number(winner);
+      if (num !== undefined && isNaN(num)) {
+        alert('Número inválido');
+        return;
+      }
+      
+      try {
+        // If empty string, we might want to unset it, but API expects number. 
+        // For now let's assume we only set numbers.
+        if (num !== undefined) {
+           await raffleAPI.update(raffle._id, { winnerNumber: num });
+           loadRaffles();
+        }
+      } catch (err) {
+        alert('Erro ao definir ganhador');
       }
     }
   };
@@ -239,6 +261,16 @@ const AdminDashboard: React.FC = () => {
                   </button>
                 </p>
                 <p>Término: {new Date(raffle.endDate).toLocaleString('pt-BR')}</p>
+                <p className="flex items-center gap-2">
+                  Ganhador: {raffle.winnerNumber || '-'}
+                  <button 
+                    onClick={() => handleSetWinner(raffle)}
+                    className="text-coral hover:text-coral-dark text-xs"
+                    title="Definir ganhador"
+                  >
+                    <FontAwesomeIcon icon={faTrophy} />
+                  </button>
+                </p>
               </div>
 
               <div className="flex gap-2">
@@ -268,6 +300,13 @@ const AdminDashboard: React.FC = () => {
                 >
                   <FontAwesomeIcon icon={faEdit} className="mr-2" />
                   Editar Páginas
+                </button>
+                <button
+                  onClick={() => handleSetWinner(raffle)}
+                  className="btn btn-trophy text-sm"
+                >
+                  <FontAwesomeIcon icon={faTrophy} className="mr-2" />
+                  Definir Ganhador
                 </button>
               </div>
             </div>

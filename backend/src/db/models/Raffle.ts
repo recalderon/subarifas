@@ -6,6 +6,7 @@ export interface IRaffle extends Document {
   status: 'active' | 'ended';
   endDate: Date;
   pages: number;
+  winnerNumber?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +27,11 @@ const RaffleSchema = new Schema<IRaffle>(
       type: String,
       enum: ['active', 'ended'],
       default: 'active',
+    },
+    winnerNumber: {
+      type: Number,
+      min: 1,
+      max: 100,
     },
     endDate: {
       type: Date,
