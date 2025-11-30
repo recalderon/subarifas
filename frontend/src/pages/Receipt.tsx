@@ -176,8 +176,31 @@ const Receipt: React.FC = () => {
               Reserva Confirmada!
             </h1>
             <p className="text-warmGray-light mt-2">
-              Guarde este comprovante
+              Guarde este link
             </p>
+          </div>
+
+          
+          {/* Actions */}
+          <div className="space-y-3">
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copiado para a área de transferência!');
+              }}
+              className="btn btn-secondary w-full"
+            >
+              <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
+              Copiar Link do Recibo
+            </button>
+            
+            <button 
+              onClick={() => navigate('/')}
+              className="btn btn-outline w-full"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+              Voltar ao Início
+            </button>
           </div>
 
           {/* Ticket Details */}
@@ -253,28 +276,6 @@ const Receipt: React.FC = () => {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="space-y-3">
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Link copiado para a área de transferência!');
-              }}
-              className="btn btn-secondary w-full"
-            >
-              <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
-              Copiar Link do Recibo
-            </button>
-            
-            <button 
-              onClick={() => navigate('/')}
-              className="btn btn-outline w-full"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-              Voltar ao Início
-            </button>
-          </div>
-
           {/* PIX Payment Instruction */}
           <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40 mt-4">
             <h3 className="text-lg font-bold text-warmGray mb-2">Pagamento via PIX</h3>
@@ -342,7 +343,7 @@ const Receipt: React.FC = () => {
                 </p>
               </div>
             )}
-          </div>
+          </div>        
 
           <div className="text-center mt-6">
             <p className="text-xs text-warmGray-light">
