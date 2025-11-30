@@ -60,8 +60,10 @@ const Receipt: React.FC = () => {
       setUploading(true);
       await receiptAPI.uploadReceipt(id!, file);
       setUploadSuccess(true);
+      // Optimistically update status
+      setReceipt((prev: any) => ({ ...prev, status: 'receipt_uploaded' }));
       alert('Comprovante enviado com sucesso!');
-      loadReceipt(); // Reload to update status if needed
+      await loadReceipt(); // Reload to update status from server
     } catch (err) {
       console.error('Error uploading receipt:', err);
       alert('Erro ao enviar comprovante. Tente novamente.');
