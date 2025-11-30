@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faInstagram, faWhatsapp, faTwitter 
 } from '@fortawesome/free-brands-svg-icons';
-import { faArrowLeft, faCheck, faBook, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faCheck, faBook, faChevronLeft, faChevronRight, faTrophy, faClock } from '@fortawesome/free-solid-svg-icons';
 import NumberGrid from '../components/raffle/NumberGrid';
 import { raffleAPI, selectionAPI } from '../services/api';
 
@@ -177,6 +177,57 @@ const RaffleSelection: React.FC = () => {
           <p className="text-sm text-warmGray-light mt-4">
             Redirecionando...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  const endDate = new Date(raffle.endDate);
+  const isExpired = new Date() > endDate;
+  const isActive = raffle.status === 'active' && !isExpired;
+
+  if (!isActive) {
+    return (
+      <div className="min-h-screen bg-summer py-8">
+        <div className="container mx-auto px-4">
+          <button
+            onClick={() => navigate('/')}
+            className="btn btn-outline mb-6"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+            Voltar
+          </button>
+
+          <div className="card-glass max-w-2xl mx-auto text-center py-12">
+            {raffle.winnerNumber ? (
+              <>
+                <FontAwesomeIcon icon={faTrophy} className="text-6xl text-yellow-400 drop-shadow-lg mb-6" />
+                <h2 className="text-3xl font-display font-bold text-warmGray mb-2">
+                  Sorteio Encerrado!
+                </h2>
+                <p className="text-warmGray-light mb-8">
+                  O ganhador já foi sorteado.
+                </p>
+                
+                <div className="bg-white/50 rounded-2xl p-8 mb-6 inline-block min-w-[200px]">
+                  <p className="text-sm text-warmGray-light uppercase tracking-wider mb-2">Número Sorteado</p>
+                  <div className="text-6xl font-bold text-coral font-display">
+                    {raffle.winnerNumber}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faClock} className="text-6xl text-gray-400 mb-6" />
+                <h2 className="text-3xl font-display font-bold text-warmGray mb-2">
+                  Aguardando Sorteio
+                </h2>
+                <p className="text-warmGray-light">
+                  Esta rifa foi encerrada e o sorteio será realizado em breve.
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </div>
     );

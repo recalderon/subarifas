@@ -5,20 +5,44 @@ import { authMiddleware } from '../middleware/auth';
 export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     // Public routes
     .get('/', async () => {
-    const raffles = await Raffle.find().sort({ createdAt: -1 });
-    const rafflesWithStats = await Promise.all(raffles.map(async (r) => {
-        const takenCount = await Selection.countDocuments({ raffleId: r._id });
+    const raffles = await Raffle.aggregate([
+        { $sort: { createdAt: -1 } },
+        {
+            $lookup: {
+                from: 'selections',
+                let: { raffleId: '$_id' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$raffleId', '$$raffleId'] } } },
+                    { $count: 'count' }
+                ],
+                as: 'selectionStats'
+            }
+        },
+        {
+            $addFields: {
+                takenCount: { $ifNull: [{ $arrayElemAt: ['$selectionStats.count', 0] }, 0] }
+            }
+        },
+        {
+            $project: {
+                selectionStats: 0
+            }
+        }
+    ]);
+    return raffles.map(r => {
         const totalNumbers = r.pages * 100;
+        // Ensure _id is transformed to string if needed, or keep as is depending on frontend expectation.
+        // Mongoose documents usually have .id getter, but aggregation returns plain objects.
+        // We might need to cast _id to string if the frontend expects it, but usually standard JSON serialization handles it.
         return {
-            ...r.toJSON(),
+            ...r,
             stats: {
                 total: totalNumbers,
-                available: totalNumbers - takenCount,
-                taken: takenCount
+                available: totalNumbers - r.takenCount,
+                taken: r.takenCount
             }
         };
-    }));
-    return rafflesWithStats;
+    });
 })
     .get('/:id', async ({ params: { id }, set }) => {
     const raffle = await Raffle.findById(id);

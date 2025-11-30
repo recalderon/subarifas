@@ -72,4 +72,7 @@ const SelectionSchema = new Schema<ISelection>(
 // Ensure unique number per raffle
 SelectionSchema.index({ raffleId: 1, number: 1, pageNumber: 1 }, { unique: true });
 
+// Optimize available numbers query
+SelectionSchema.index({ raffleId: 1, pageNumber: 1 });
+
 export const Selection = mongoose.model<ISelection>('Selection', SelectionSchema);

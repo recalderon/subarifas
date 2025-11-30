@@ -37,65 +37,75 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
     setShowWinnerModal(true);
   };
 
-  return (
-    <>
-      <Link to={`/raffle/${raffle._id}`} className="block h-full">
-        <div className="card-glass hover:scale-105 transition-transform duration-300 animate-fadeIn h-full flex flex-col">
-          <div className="flex flex-col items-center text-center space-y-4 flex-grow">
-            {/* Book Icon */}
-            <div className={`w-20 h-20 rounded-2xl flex items-center justify-center relative ${
-              isActive ? 'bg-gradient-to-br from-coral to-peach' : 'bg-gray-300'
-            }`}>
-              <FontAwesomeIcon icon={faBook} className="text-4xl text-white" />
-              {!isActive && (
-                <div className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  Encerrada
-                </div>
-              )}
-            </div>
-
-            {/* Title */}
-            <h3 className="text-xl font-display font-bold text-warmGray">
-              {raffle.title}
-            </h3>
-
-            {/* Description */}
-            <p className="text-sm text-warmGray-light line-clamp-2">
-              {raffle.description}
-            </p>
-
-            {/* Stats: Available / Total */}
-            <div className="flex items-center gap-2 text-sm text-warmGray bg-white/40 px-3 py-1 rounded-full">
-              <FontAwesomeIcon icon={faTicketAlt} className="text-mint" />
-              <span>
-                <span className="font-bold">{availableNumbers}</span> disponíveis / {totalNumbers}
-              </span>
-            </div>
-
-            {/* End Date */}
-            <div className="flex items-center gap-2 text-sm text-warmGray-light">
-              <FontAwesomeIcon icon={faClock} className="text-peach" />
-              <span>
-                {isActive ? 'Sorteio em: ' : 'Sorteio: '}
-                {endDate.toLocaleDateString('pt-BR')}
-              </span>
-            </div>
-          </div>
-
-          {/* Winner Button (if ended and winner exists) */}
-          {!isActive && raffle.winnerNumber && (
-            <div className="mt-4 pt-4 border-t border-white/20 w-full">
-              <button
-                onClick={handleWinnerClick}
-                className="btn btn-secondary w-full text-sm py-2"
-              >
-                <FontAwesomeIcon icon={faTrophy} className="mr-2 text-yellow-500" />
-                Ver Ganhador
-              </button>
+  const CardContent = () => (
+    <div className="card-glass hover:scale-105 transition-transform duration-300 animate-fadeIn h-full flex flex-col">
+      <div className="flex flex-col items-center text-center space-y-4 flex-grow">
+        {/* Book Icon */}
+        <div className={`w-20 h-20 rounded-2xl flex items-center justify-center relative ${
+          isActive ? 'bg-gradient-to-br from-coral to-peach' : 'bg-gray-300'
+        }`}>
+          <FontAwesomeIcon icon={faBook} className="text-4xl text-white" />
+          {!isActive && (
+            <div className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">
+              {raffle.winnerNumber ? 'Encerrada' : 'Aguardando'}
             </div>
           )}
         </div>
-      </Link>
+
+        {/* Title */}
+        <h3 className="text-xl font-display font-bold text-warmGray">
+          {raffle.title}
+        </h3>
+
+        {/* Description */}
+        <p className="text-sm text-warmGray-light line-clamp-2">
+          {raffle.description}
+        </p>
+
+        {/* Stats: Available / Total */}
+        <div className="flex items-center gap-2 text-sm text-warmGray bg-white/40 px-3 py-1 rounded-full">
+          <FontAwesomeIcon icon={faTicketAlt} className="text-mint" />
+          <span>
+            <span className="font-bold">{availableNumbers}</span> disponíveis / {totalNumbers}
+          </span>
+        </div>
+
+        {/* End Date */}
+        <div className="flex items-center gap-2 text-sm text-warmGray-light">
+          <FontAwesomeIcon icon={faClock} className="text-peach" />
+          <span>
+            {isActive ? 'Sorteio em: ' : 'Sorteio: '}
+            {endDate.toLocaleDateString('pt-BR')}
+          </span>
+        </div>
+      </div>
+
+      {/* Winner Button (if ended and winner exists) */}
+      {!isActive && raffle.winnerNumber && (
+        <div className="mt-4 pt-4 border-t border-white/20 w-full">
+          <button
+            onClick={handleWinnerClick}
+            className="btn btn-secondary w-full text-sm py-2"
+          >
+            <FontAwesomeIcon icon={faTrophy} className="mr-2 text-yellow-500" />
+            Ver Ganhador
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {isActive ? (
+        <Link to={`/raffle/${raffle._id}`} className="block h-full">
+          <CardContent />
+        </Link>
+      ) : (
+        <div className="block h-full cursor-default">
+          <CardContent />
+        </div>
+      )}
 
       {/* Winner Modal */}
       {showWinnerModal && (
