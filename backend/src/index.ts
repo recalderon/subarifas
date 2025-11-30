@@ -13,6 +13,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
+const LOG_REQUEST_SHAPES = process.env.LOG_REQUEST_SHAPES === 'true';
 // Remove trailing slash if present to match browser Origin header
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
@@ -65,15 +66,19 @@ const app = new Elysia()
       // Mask sensitive headers
       if (headers.authorization) headers.authorization = 'REDACTED';
 
-      // Try to capture request body safely
+      // Try to capture request body safely (only if explicitly enabled via env var)
       let rawBody = undefined;
       try {
+        if (!LOG_REQUEST_SHAPES) {
+          rawBody = '[logging disabled]';
+        } else {
         // Clone the request stream so we don't consume it, if supported
         if (typeof request.clone === 'function') {
           const clone = request.clone();
           rawBody = await clone.text();
         } else {
           rawBody = await (request as any).text?.();
+        }
         }
       } catch (e) {
         // Do not throw on body parse failures

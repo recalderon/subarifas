@@ -11,6 +11,7 @@ import { startExpirationJob } from './jobs/expiration-job';
 import dotenv from 'dotenv';
 dotenv.config();
 const PORT = process.env.PORT || 3000;
+const LOG_REQUEST_SHAPES = process.env.LOG_REQUEST_SHAPES === 'true';
 // Remove trailing slash if present to match browser Origin header
 const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 // Connect to MongoDB
@@ -49,14 +50,55 @@ const app = new Elysia()
     .use(selectionRoutes)
     .use(receiptRoutes)
     .use(adminRoutes)
-    .onError(({ code, error, set }) => {
-    console.error('Error:', error);
+    .onError(async ({ code, error, set, request }) => {
+    // Log error with request information to aid debugging in prod
+    try {
+        const method = request?.method || 'UNKNOWN';
+        const url = request?.url || 'UNKNOWN';
+        const headers = request ? Object.fromEntries(request.headers.entries()) : {};
+        // Mask sensitive headers
+        if (headers.authorization)
+            headers.authorization = 'REDACTED';
+        // Try to capture request body safely (only if explicitly enabled via env var)
+        let rawBody = undefined;
+        try {
+            if (!LOG_REQUEST_SHAPES) {
+                rawBody = '[logging disabled]';
+            }
+            else {
+                // Clone the request stream so we don't consume it, if supported
+                if (typeof request.clone === 'function') {
+                    const clone = request.clone();
+                    rawBody = await clone.text();
+                }
+                else {
+                    rawBody = await request.text?.();
+                }
+            }
+        }
+        catch (e) {
+            // Do not throw on body parse failures
+        }
+        // Limit raw body to first 4KB to avoid noisy logs
+        if (typeof rawBody === 'string' && rawBody.length > 4096) {
+            rawBody = rawBody.slice(0, 4096) + '... [truncated]';
+        }
+        const extra = {};
+        if (error && error.details)
+            extra.details = error.details;
+        if (error && error.errors)
+            extra.validationErrors = error.errors;
+        console.error('Request Error', { method, url, headers, rawBody, error: String(error), ...extra });
+    }
+    catch (e) {
+        console.error('Error logging error context', e);
+    }
     if (code === 'NOT_FOUND') {
         set.status = 404;
         return { error: 'Route not found' };
     }
     if (code === 'VALIDATION') {
-        set.status = 400;
+        set.status = 422;
         return { error: 'Validation error', details: error.message };
     }
     set.status = 500;

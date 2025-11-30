@@ -128,7 +128,11 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         return { success: true, receiptId: body.receiptId };
     }
     catch (err) {
-        console.error('Error creating selections:', err);
+        console.error('Error creating selections:', {
+            raffleId,
+            body,
+            error: err?.message || err,
+        });
         set.status = 500;
         return { error: err.message || 'Failed to create selections' };
     }

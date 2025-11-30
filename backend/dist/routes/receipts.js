@@ -44,6 +44,7 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
         await Selection.deleteMany({ receiptId });
     }
     await receipt.save();
+    console.info('Updated receipt status', { receiptId, status: body.status, changedBy: body.changedBy });
     return receipt;
 }, {
     body: t.Object({
