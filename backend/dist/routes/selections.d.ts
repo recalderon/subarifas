@@ -32,6 +32,23 @@ export declare const selectionRoutes: Elysia<"/api/selections", false, {
 } & {
     api: {
         selections: {
+            "test-db": {
+                get: {
+                    body: unknown;
+                    params: Record<never, string>;
+                    query: unknown;
+                    headers: unknown;
+                    response: {
+                        [x: string]: any;
+                        200: any;
+                    };
+                };
+            };
+        };
+    };
+} & {
+    api: {
+        selections: {
             ":raffleId": {
                 get: {
                     body: unknown;

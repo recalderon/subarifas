@@ -6,16 +6,53 @@ import { eventBus } from '../utils/events';
 
 export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .get('/receipt/:receiptId', async ({ params: { receiptId }, set }) => {
+    console.log(`Fetching receipt: ${receiptId}`);
     const selections = await Selection.find({ receiptId })
       .populate('raffleId', 'title description endDate')
       .sort({ number: 1 });
 
+    console.log(`Found ${selections?.length} selections for receipt ${receiptId}`);
+
     if (!selections || selections.length === 0) {
+      console.log('Receipt not found');
       set.status = 404;
       return { error: 'Receipt not found' };
     }
 
     return selections;
+  })
+
+  .get('/test-db', async ({ set }) => {
+    try {
+      const testId = 'test-' + Date.now();
+      // Find any active raffle
+      const raffle = await Raffle.findOne({ status: 'active' });
+      if (!raffle) return { error: 'No active raffle found for test' };
+
+      const selection = new Selection({
+        raffleId: raffle._id,
+        receiptId: testId,
+        number: 1, 
+        pageNumber: 9999,
+        user: { xHandle: 'test', instagramHandle: 'test', whatsapp: '000', preferredContact: 'x' }
+      });
+      await selection.save();
+      console.log('Test selection saved');
+
+      const found = await Selection.find({ receiptId: testId });
+      console.log('Test selection found:', found.length);
+
+      await Selection.deleteOne({ receiptId: testId });
+
+      return { 
+        success: true, 
+        saved: true, 
+        found: found.length > 0, 
+        receiptId: testId 
+      };
+    } catch (err: any) {
+      return { error: err.message };
+    }
   })
 
   .get('/:raffleId', async ({ params: { raffleId }, set }) => {
@@ -66,6 +103,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       }
 
       // Create selection
+      console.log(`Creating selection for raffle ${raffleId}, receipt ${body.receiptId}, number ${body.number}`);
       const selection = new Selection({
         raffleId,
         receiptId: body.receiptId,
@@ -75,6 +113,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       });
 
       await selection.save();
+      console.log(`Selection saved: ${selection._id}`);
 
       // Broadcast selection
       eventBus.emit('selection:created', {
