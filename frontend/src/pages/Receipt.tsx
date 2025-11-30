@@ -276,7 +276,7 @@ const Receipt: React.FC = () => {
           <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40">
             <h3 className="text-lg font-bold text-warmGray mb-4">Enviar Comprovante</h3>
             
-            {uploadSuccess || (receipt && receipt.status !== 'waiting_payment') ? (
+            {uploadSuccess || (receipt && (receipt.status === 'receipt_uploaded' || receipt.status === 'paid')) ? (
               <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
                 <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
                 <p className="font-semibold">
