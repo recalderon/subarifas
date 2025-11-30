@@ -160,7 +160,7 @@ const Receipt: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-summer py-8 px-4">
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="card-glass animate-fadeIn relative overflow-hidden">
           {/* Decorative top border */}
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-coral to-pink-500"></div>
