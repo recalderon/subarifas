@@ -55,6 +55,15 @@ export const receiptAPI = {
   getById: (receiptId: string) => api.get(`/api/receipts/detail/${receiptId}`),
   updateStatus: (receiptId: string, status: 'created' | 'waiting_payment' | 'expired' | 'paid', changedBy?: string, note?: string) =>
     api.patch(`/api/receipts/${receiptId}/status`, { status, changedBy, note }),
+  uploadReceipt: (receiptId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post(`/api/receipts/${receiptId}/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export const healthAPI = {

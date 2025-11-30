@@ -50,6 +50,27 @@ export declare const receiptRoutes: Elysia<"/api/receipts", false, {
     api: {
         receipts: {
             ":receiptId": {
+                upload: {
+                    post: {
+                        body: {
+                            file: File;
+                        };
+                        params: Record<"receiptId", string>;
+                        query: unknown;
+                        headers: unknown;
+                        response: {
+                            [x: string]: any;
+                            200: any;
+                        };
+                    };
+                };
+            };
+        };
+    };
+} & {
+    api: {
+        receipts: {
+            ":receiptId": {
                 status: {
                     patch: {
                         body: {

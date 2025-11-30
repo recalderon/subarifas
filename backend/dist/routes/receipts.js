@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia';
 import { Receipt } from '../db/models/Receipt';
 import { Selection } from '../db/models/Selection';
+import { sendReceiptToTelegram } from '../services/telegram';
 export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
     // Get all receipts for a raffle
     .get('/:raffleId', async ({ params: { raffleId } }) => {
@@ -18,6 +19,47 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
         return { error: 'Receipt not found' };
     }
     return receipt;
+})
+    // Upload receipt
+    .post('/:receiptId/upload', async ({ params: { receiptId }, body: { file }, set }) => {
+    const receipt = await Receipt.findOne({ receiptId }).populate('raffleId');
+    if (!receipt) {
+        set.status = 404;
+        return { error: 'Receipt not found' };
+    }
+    // @ts-ignore
+    const raffleTitle = receipt.raffleId?.title || 'Unknown Raffle';
+    // @ts-ignore
+    const rafflePrice = receipt.raffleId?.price || 0;
+    const caption = `
+Comprovante de Pagamento
+Rifa: ${raffleTitle}
+Valor: R$ ${receipt.totalAmount.toFixed(2)}
+Nome: ${receipt.user.xHandle || receipt.user.instagramHandle || receipt.user.whatsapp}
+Contato: ${receipt.user.preferredContact}
+ID do Recibo: ${receiptId}
+    `.trim();
+    const sent = await sendReceiptToTelegram(file, caption);
+    if (!sent) {
+        set.status = 500;
+        return { error: 'Failed to send receipt to Telegram' };
+    }
+    // Update status to waiting_payment if it's currently created
+    if (receipt.status === 'created') {
+        receipt.status = 'waiting_payment';
+        receipt.statusHistory.push({
+            status: 'waiting_payment',
+            changedAt: new Date(),
+            changedBy: 'system',
+            note: 'Receipt uploaded by user'
+        });
+        await receipt.save();
+    }
+    return { success: true };
+}, {
+    body: t.Object({
+        file: t.File()
+    })
 })
     // Update receipt status (admin only)
     .patch('/:receiptId/status', async ({ params: { receiptId }, body, set }) => {

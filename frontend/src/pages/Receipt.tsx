@@ -5,7 +5,7 @@ import {
   faCheckCircle, faTicketAlt, faCalendarAlt, faUser, faArrowLeft, faShareAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
-import { selectionAPI } from '../services/api';
+import { selectionAPI, receiptAPI } from '../services/api';
 import { formatReceiptId } from '../utils/receiptId';
 
 const Receipt: React.FC = () => {
@@ -14,6 +14,8 @@ const Receipt: React.FC = () => {
   const [selections, setSelections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +42,29 @@ const Receipt: React.FC = () => {
       setError('Recibo não encontrado');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('O arquivo deve ter no máximo 5MB');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      await receiptAPI.uploadReceipt(id!, file);
+      setUploadSuccess(true);
+      alert('Comprovante enviado com sucesso!');
+      loadReceipt(); // Reload to update status if needed
+    } catch (err) {
+      console.error('Error uploading receipt:', err);
+      alert('Erro ao enviar comprovante. Tente novamente.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -216,6 +241,55 @@ const Receipt: React.FC = () => {
             {raffle.pixQRCode && (
               <div className="text-center">
                 <img src={raffle.pixQRCode} alt="PIX QR Code" className="mx-auto h-40 w-auto" />
+              </div>
+            )}
+          </div>
+
+          {/* Upload Receipt Section */}
+          <div className="bg-white/50 rounded-xl p-6 mb-4 border border-white/40">
+            <h3 className="text-lg font-bold text-warmGray mb-4">Enviar Comprovante</h3>
+            
+            {uploadSuccess ? (
+              <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
+                <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
+                <p className="font-semibold">Comprovante enviado!</p>
+                <p className="text-sm">Aguarde a confirmação do administrador.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-warmGray-light text-sm">
+                  Após realizar o pagamento, envie o comprovante aqui para agilizar a confirmação.
+                </p>
+                
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="receipt-upload"
+                    disabled={uploading}
+                  />
+                  <label
+                    htmlFor="receipt-upload"
+                    className={`btn btn-primary w-full cursor-pointer flex items-center justify-center ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                  >
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
+                        Selecionar Comprovante
+                      </>
+                    )}
+                  </label>
+                </div>
+                <p className="text-xs text-center text-warmGray-light">
+                  Formatos aceitos: Imagem ou PDF (Max 5MB)
+                </p>
               </div>
             )}
           </div>
