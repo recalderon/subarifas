@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faPlus, faPlay, faStop, faTrash, faEye, faBook, faEdit, faTrophy 
+  faPlus, faPlay, faStop, faTrash, faEye, faTicket, faEdit, faTrophy 
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { raffleAPI, receiptAPI } from '../services/api';
@@ -402,7 +402,7 @@ const AdminDashboard: React.FC = () => {
             <div key={raffle._id} className="card-glass">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <FontAwesomeIcon icon={faBook} className="text-3xl text-coral" />
+                  <FontAwesomeIcon icon={faTicket} className="text-3xl text-coral rotate-45" />
                   <div>
                     <h3 className="text-xl font-display font-bold text-warmGray">
                       {raffle.title}
