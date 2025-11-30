@@ -70,6 +70,11 @@ The frontend will run on `http://localhost:5173`.
 - 🔒 **Admin Panel**: Manage raffles, view selections, and control status.
 - 🇧🇷 **Brazilian Localization**: Dates and times in pt-BR format.
 
+## Logging & Debugging
+
+- To help diagnose validation errors in production (e.g., 422 responses), enable detailed request shape logging by setting the environment variable `LOG_REQUEST_SHAPES=true` on the backend. The server will then log method/url/headers and the request body (truncated) on validation errors and other exceptions.
+- Use this cautiously in production as it may log sensitive data; prefer turning it on temporarily while debugging.
+
 ## License
 
 MIT
