@@ -138,13 +138,13 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
       const receipt = new Receipt({
         receiptId,
         raffleId,
-        status: 'waiting_payment',
+        status: 'created',
         numbers: body.numbers,
         user: body.user,
         totalAmount,
         expiresAt,
         statusHistory: [{
-          status: 'waiting_payment',
+          status: 'created',
           changedAt: new Date(),
         }],
       });
