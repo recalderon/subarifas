@@ -13,7 +13,7 @@ interface RaffleForm {
   title: string;
   description: string;
   endDate: string;
-  pages: number;
+  totalNumbers: number;
   price: number;
   expirationHours: number;
   pixName: string;
@@ -26,7 +26,7 @@ const AdminDashboard: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<RaffleForm>({
     defaultValues: {
-      pages: 1,
+      totalNumbers: 100,
       price: 0,
       expirationHours: 24,
       pixName: '',
@@ -111,7 +111,7 @@ const AdminDashboard: React.FC = () => {
   // Edit form handling
   const { register: registerEdit, handleSubmit: handleEditSubmitFn, reset: resetEdit, formState: { errors: editErrors } } = useForm<RaffleForm>({
     defaultValues: {
-      pages: 1,
+      totalNumbers: 100,
       price: 0,
       expirationHours: 24,
       pixName: '',
@@ -197,7 +197,7 @@ const AdminDashboard: React.FC = () => {
       title: raffle.title,
       description: raffle.description,
       endDate: raffle.endDate?.slice?.(0, 16) || '',
-      pages: raffle.pages,
+      totalNumbers: raffle.totalNumbers,
       price: raffle.price,
       expirationHours: raffle.expirationHours,
       pixName: raffle.pixName || '',
@@ -206,18 +206,6 @@ const AdminDashboard: React.FC = () => {
     });
     setEditPixQRCodeDataUrl(raffle.pixQRCode || '');
     setShowEditForm(true);
-  };
-
-  const handleUpdatePages = async (raffle: any) => {
-    const newPages = prompt('Novo número de páginas:', raffle.pages);
-    if (newPages && !isNaN(Number(newPages)) && Number(newPages) > 0) {
-      try {
-        await raffleAPI.update(raffle._id, { pages: Number(newPages) });
-        loadRaffles();
-      } catch (err) {
-        alert('Erro ao atualizar páginas');
-      }
-    }
   };
 
   const handleSetWinner = async (raffle: any) => {
@@ -310,15 +298,16 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-warmGray font-medium mb-2">Número de Páginas</label>
+                  <label className="block text-warmGray font-medium mb-2">Números</label>
                   <input
                     type="number"
-                    min="1"
-                    {...register('pages', { required: 'Campo obrigatório', min: 1, valueAsNumber: true })}
+                    min="100"
+                    step="100"
+                    {...register('totalNumbers', { required: 'Campo obrigatório', min: 100, valueAsNumber: true })}
                     className="input"
-                    placeholder="1"
+                    placeholder="100"
                   />
-                  {errors.pages && <p className="text-red-500 text-sm mt-1">{errors.pages.message}</p>}
+                  {errors.totalNumbers && <p className="text-red-500 text-sm mt-1">{errors.totalNumbers.message}</p>}
                 </div>
 
                 <div>
@@ -426,24 +415,10 @@ const AdminDashboard: React.FC = () => {
                   <span className="font-semibold">Preço:</span> R$ {raffle.price?.toFixed(2)}
                 </p>
                 <p className="flex items-center gap-2">
-                  <span className="font-semibold">Páginas:</span> {raffle.pages}
-                  <button 
-                    onClick={() => handleUpdatePages(raffle)}
-                    className="text-coral hover:text-coral-dark text-xs"
-                    title="Editar páginas"
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
+                  <span className="font-semibold">Números:</span> {raffle.totalNumbers}
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-semibold">Término:</span> {new Date(raffle.endDate).toLocaleString('pt-BR')}
-                  <button 
-                    onClick={() => openEditModal(raffle)}
-                    className="text-coral hover:text-coral-dark text-xs"
-                    title="Editar data e preço"
-                  >
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-semibold">Ganhador:</span> {raffle.winnerNumber || '-'}
@@ -689,9 +664,9 @@ const AdminDashboard: React.FC = () => {
                     {editErrors.endDate && <p className="text-red-500 text-sm mt-1">{editErrors.endDate.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-warmGray font-medium mb-2">Número de Páginas</label>
-                    <input type="number" min="1" {...registerEdit('pages', { required: 'Campo obrigatório', min: 1, valueAsNumber: true })} className="input" defaultValue={editingRaffle.pages} />
-                    {editErrors.pages && <p className="text-red-500 text-sm mt-1">{editErrors.pages.message}</p>}
+                    <label className="block text-warmGray font-medium mb-2">Números</label>
+                    <input type="number" min="100" step="100" {...registerEdit('totalNumbers', { required: 'Campo obrigatório', min: 100, valueAsNumber: true })} className="input" defaultValue={editingRaffle.totalNumbers} />
+                    {editErrors.totalNumbers && <p className="text-red-500 text-sm mt-1">{editErrors.totalNumbers.message}</p>}
                   </div>
                   <div>
                     <label className="block text-warmGray font-medium mb-2">Preço por Número (R$)</label>

@@ -18,7 +18,7 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
         set.status = 404;
         return { error: 'Receipt not found' };
     }
-    return receipt;
+    return receipt.toObject();
 })
     // Upload receipt
     .post('/:receiptId/upload', async ({ params: { receiptId }, body: { file }, set }) => {

@@ -6,6 +6,8 @@ interface NumberGridProps {
   selectedNumbers: number[];
   onToggleNumber: (number: number) => void;
   disabled?: boolean;
+  startNumber: number;
+  endNumber: number;
 }
 
 const NumberGrid: React.FC<NumberGridProps> = ({
@@ -14,6 +16,8 @@ const NumberGrid: React.FC<NumberGridProps> = ({
   selectedNumbers,
   onToggleNumber,
   disabled = false,
+  startNumber,
+  endNumber,
 }) => {
   const getNumberState = (num: number) => {
     if (selectedNumbers.includes(num)) return 'selected';
@@ -32,9 +36,12 @@ const NumberGrid: React.FC<NumberGridProps> = ({
     return `${baseClass} number-available`;
   };
 
+  // Calculate number of numbers to show (based on range)
+  const numbersToShow = endNumber - startNumber + 1;
+
   return (
     <div className="grid grid-cols-10 gap-2 p-4">
-      {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => {
+      {Array.from({ length: numbersToShow }, (_, i) => startNumber + i).map((num) => {
         const state = getNumberState(num);
         const isDisabled = disabled || state === 'taken';
 

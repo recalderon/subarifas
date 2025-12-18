@@ -19,10 +19,10 @@ const RaffleSchema = new Schema({
         type: Date,
         required: true,
     },
-    pages: {
+    totalNumbers: {
         type: Number,
         required: true,
-        min: 1,
+        min: 100,
     },
     price: {
         type: Number,

@@ -24,6 +24,9 @@ const RaffleSelection: React.FC = () => {
 
   const [raffle, setRaffle] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [startNumber, setStartNumber] = useState(1);
+  const [endNumber, setEndNumber] = useState(100);
   const [availableNumbers, setAvailableNumbers] = useState<number[]>([]);
   const [takenNumbers, setTakenNumbers] = useState<number[]>([]);
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
@@ -49,6 +52,9 @@ const RaffleSelection: React.FC = () => {
       try {
         const response = await raffleAPI.getAvailable(id, currentPage);
         const newTakenNumbers = response.data.takenNumbers;
+        setTotalPages(response.data.totalPages || 1);
+        setStartNumber(response.data.startNumber || 1);
+        setEndNumber(response.data.endNumber || 100);
         
         setTakenNumbers(prev => {
           // Check if any new numbers were taken
@@ -104,6 +110,9 @@ const RaffleSelection: React.FC = () => {
       const response = await raffleAPI.getAvailable(id!, currentPage);
       setAvailableNumbers(response.data.availableNumbers);
       setTakenNumbers(response.data.takenNumbers);
+      setTotalPages(response.data.totalPages || 1);
+      setStartNumber(response.data.startNumber || 1);
+      setEndNumber(response.data.endNumber || 100);
     } catch (err: any) {
       console.error('Error fetching available numbers:', (err as any)?.response?.data || err.message || err);
       if ((err as any)?.response?.status === 404) {
@@ -283,11 +292,11 @@ const RaffleSelection: React.FC = () => {
           {/* Number Grid */}
           <div className="card-glass lg:col-span-2 h-fit">
             <h3 className="text-xl font-display font-bold text-warmGray mb-4 text-center">
-              Selecione seus números (1-100)
+              Selecione seus números ({startNumber}-{endNumber})
             </h3>
 
             {/* Pagination inside Number Grid */}
-            {raffle?.pages > 1 && (
+            {totalPages > 1 && (
               <div className="flex items-center justify-between mb-6 bg-white/30 p-3 rounded-xl">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -301,13 +310,13 @@ const RaffleSelection: React.FC = () => {
                 <div className="text-center">
                   <p className="text-xs text-warmGray-light uppercase tracking-wider">Página</p>
                   <p className="text-xl font-display font-bold text-warmGray">
-                    {currentPage} / {raffle?.pages}
+                    {currentPage} / {totalPages}
                   </p>
                 </div>
 
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(raffle?.pages || 1, p + 1))}
-                  disabled={currentPage === raffle?.pages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
                   className="btn btn-sm btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Próxima
@@ -322,6 +331,8 @@ const RaffleSelection: React.FC = () => {
               selectedNumbers={selectedNumbers}
               onToggleNumber={handleToggleNumber}
               disabled={raffle?.status !== 'open'}
+              startNumber={startNumber}
+              endNumber={endNumber}
             />
             {selectedNumbers.length > 0 && (
               <div className="mt-4 p-4 bg-coral/10 rounded-2xl">

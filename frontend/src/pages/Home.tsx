@@ -10,7 +10,7 @@ interface Raffle {
   description: string;
   status: 'open' | 'waiting' | 'closed';
   endDate: string;
-  pages: number;
+  totalNumbers: number;
   price: number;
 }
 

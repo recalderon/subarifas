@@ -10,7 +10,7 @@ interface RaffleCardProps {
     description: string;
     status: 'open' | 'waiting' | 'closed';
     endDate: string;
-    pages: number;
+    totalNumbers: number;
     price: number;
     winnerNumber?: number;
     stats?: {
@@ -28,8 +28,8 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
   const isExpired = new Date() > endDate;
   const isActive = raffle.status === 'open' && !isExpired;
   
-  // Use stats if available, otherwise fallback to calculation
-  const totalNumbers = raffle.stats?.total || raffle.pages * 100;
+  // Use stats if available, otherwise fallback to totalNumbers
+  const totalNumbers = raffle.stats?.total || raffle.totalNumbers;
   const availableNumbers = raffle.stats?.available ?? totalNumbers;
 
   const handleWinnerClick = (e: React.MouseEvent) => {

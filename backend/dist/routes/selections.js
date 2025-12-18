@@ -74,10 +74,16 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
             return { error: 'Raffle has ended' };
         }
         // Validate all numbers
+        const totalPages = Math.ceil(raffle.totalNumbers / 100);
         for (const item of body.numbers) {
-            if (item.pageNumber < 1 || item.pageNumber > raffle.pages) {
+            if (item.pageNumber < 1 || item.pageNumber > totalPages) {
                 set.status = 400;
                 return { error: `Invalid page number: ${item.pageNumber}` };
+            }
+            // Validate number is within raffle range
+            if (item.number < 1 || item.number > raffle.totalNumbers) {
+                set.status = 400;
+                return { error: `Invalid number: ${item.number}. Must be between 1 and ${raffle.totalNumbers}` };
             }
             // Check if number is already taken
             const existing = await Selection.findOne({
@@ -118,13 +124,13 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         const receipt = new Receipt({
             receiptId,
             raffleId,
-            status: 'waiting_payment',
+            status: 'created',
             numbers: body.numbers,
             user: body.user,
             totalAmount,
             expiresAt,
             statusHistory: [{
-                    status: 'waiting_payment',
+                    status: 'created',
                     changedAt: new Date(),
                 }],
         });

@@ -10,7 +10,10 @@ const testReceipt = async () => {
             title: 'Test Raffle',
             description: 'Test Description',
             endDate: new Date(),
-            pages: 1,
+            totalNumbers: 100,
+            price: 10,
+            pixName: 'Test',
+            pixKey: 'test@pix.com',
             status: 'active'
         });
         await raffle.save();

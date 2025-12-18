@@ -4,7 +4,7 @@ export interface IRaffle extends Document {
     description: string;
     status: 'open' | 'waiting' | 'closed';
     endDate: Date;
-    pages: number;
+    totalNumbers: number;
     price: number;
     expirationHours: number;
     pixName: string;

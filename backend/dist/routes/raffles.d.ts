@@ -76,7 +76,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         title: string;
                         description: string;
                         endDate: string;
-                        pages: number;
+                        totalNumbers: number;
                         price: number;
                         pixName: string;
                         pixKey: string;
@@ -99,7 +99,7 @@ export declare const raffleRoutes: Elysia<"/api/raffles", false, {
                         title?: string | undefined;
                         description?: string | undefined;
                         endDate?: string | undefined;
-                        pages?: number | undefined;
+                        totalNumbers?: number | undefined;
                         price?: number | undefined;
                         expirationHours?: number | undefined;
                         pixName?: string | undefined;

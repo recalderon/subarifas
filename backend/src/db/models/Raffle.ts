@@ -5,7 +5,7 @@ export interface IRaffle extends Document {
   description: string;
   status: 'open' | 'waiting' | 'closed';
   endDate: Date;
-  pages: number;
+  totalNumbers: number;
   price: number;
   expirationHours: number;
   pixName: string;
@@ -37,10 +37,10 @@ const RaffleSchema = new Schema<IRaffle>(
       type: Date,
       required: true,
     },
-    pages: {
+    totalNumbers: {
       type: Number,
       required: true,
-      min: 1,
+      min: 100,
     },
     price: {
       type: Number,

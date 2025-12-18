@@ -33,7 +33,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     ]);
     
     return raffles.map(r => {
-      const totalNumbers = r.pages * 100;
+      const totalNumbers = r.totalNumbers || 100;
       // Ensure _id is transformed to string if needed, or keep as is depending on frontend expectation.
       // Mongoose documents usually have .id getter, but aggregation returns plain objects.
       // We might need to cast _id to string if the frontend expects it, but usually standard JSON serialization handles it.
@@ -69,8 +69,9 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     }
 
     const page = parseInt(query.page as string) || 1;
+    const totalPages = Math.ceil(raffle.totalNumbers / 100);
     
-    if (page < 1 || page > raffle.pages) {
+    if (page < 1 || page > totalPages) {
       set.status = 400;
       return { error: 'Invalid page number' };
     }
@@ -81,13 +82,20 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       pageNumber: page 
     }).select('number');
 
+    // Calculate the range of numbers for this page
+    const startNumber = (page - 1) * 100 + 1;
+    const endNumber = Math.min(page * 100, raffle.totalNumbers);
+    const numbersInPage = endNumber - startNumber + 1;
+
     const takenNumbers = selections.map(s => s.number);
-    const availableNumbers = Array.from({ length: 100 }, (_, i) => i + 1)
+    const availableNumbers = Array.from({ length: numbersInPage }, (_, i) => startNumber + i)
       .filter(num => !takenNumbers.includes(num));
 
     return {
       page,
-      totalPages: raffle.pages,
+      totalPages,
+      startNumber,
+      endNumber,
       availableNumbers,
       takenNumbers,
     };
@@ -105,12 +113,12 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
             body.endDate = `${body.endDate}-03:00`;
           }
           // Coerce numeric fields coming as strings
-          if (body.pages && typeof body.pages === 'string') {
-            body.pages = Number(body.pages);
+          if (body.totalNumbers && typeof body.totalNumbers === 'string') {
+            body.totalNumbers = Number(body.totalNumbers);
           }
-          if (body.pages && (!Number.isInteger(body.pages) || body.pages < 1)) {
+          if (body.totalNumbers && (!Number.isInteger(body.totalNumbers) || body.totalNumbers < 100)) {
             set.status = 400;
-            return { error: 'pages must be an integer >= 1' };
+            return { error: 'totalNumbers must be an integer >= 100' };
           }
           if (body.price && typeof body.price === 'string') {
             body.price = Number(body.price);
@@ -141,7 +149,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
           title: t.String(),
           description: t.String(),
           endDate: t.String(),
-          pages: t.Number(),
+          totalNumbers: t.Number(),
           price: t.Number(),
           expirationHours: t.Optional(t.Number()),
           pixName: t.String(),
@@ -157,12 +165,12 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
             body.endDate = `${body.endDate}-03:00`;
           }
           // Coerce numeric fields coming as strings
-          if (body.pages && typeof body.pages === 'string') {
-            body.pages = Number(body.pages);
+          if (body.totalNumbers && typeof body.totalNumbers === 'string') {
+            body.totalNumbers = Number(body.totalNumbers);
           }
-          if (body.pages && (!Number.isInteger(body.pages) || body.pages < 1)) {
+          if (body.totalNumbers && (!Number.isInteger(body.totalNumbers) || body.totalNumbers < 100)) {
             set.status = 400;
-            return { error: 'pages must be an integer >= 1' };
+            return { error: 'totalNumbers must be an integer >= 100' };
           }
           if (body.price && typeof body.price === 'string') {
             body.price = Number(body.price);
@@ -201,7 +209,7 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
           title: t.Optional(t.String()),
           description: t.Optional(t.String()),
           endDate: t.Optional(t.String()),
-          pages: t.Optional(t.Number()),
+          totalNumbers: t.Optional(t.Number()),
           price: t.Optional(t.Number()),
           expirationHours: t.Optional(t.Number()),
           pixName: t.Optional(t.String()),
