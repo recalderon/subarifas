@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           Feito com <FontAwesomeIcon icon={faHeart} className="text-coral" /> para rifas incríveis
         </p>
         <p className="text-sm text-warmGray-light mt-2">
-          © 2025 Subaruffles - Todos os direitos reservados
+          © 2025 Subarifas - Todos os direitos reservados
         </p>
       </div>
     </footer>

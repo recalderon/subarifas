@@ -55,7 +55,7 @@ const Home: React.FC = () => {
           />
 
           <h1 className="text-6xl font-display font-bold text-gradient mb-6 animate-fadeIn">
-            Bem-vindo ao Subaruffles! 🌸
+            Bem-vindo ao Subarifas! 🌸
           </h1>
           <p className="text-xl text-warmGray max-w-2xl mx-auto mb-12 animate-fadeIn">
             Participe de rifas incríveis e concorra a prêmios maravilhosos!

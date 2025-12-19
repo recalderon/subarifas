@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import InputMask from 'react-input-mask';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faInstagram, faWhatsapp, faTwitter 
@@ -20,7 +21,7 @@ interface UserForm {
 const RaffleSelection: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm<UserForm>();
+  const { register, handleSubmit, control, formState: { errors } } = useForm<UserForm>();
 
   const [raffle, setRaffle] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -384,7 +385,7 @@ const RaffleSelection: React.FC = () => {
                 <div>
                   <label className="block text-warmGray font-medium mb-2">
                     <FontAwesomeIcon icon={faTwitter} className="mr-2 text-warmGray-light" />
-                    X / Twitter Handle
+                    X / Twitter
                   </label>
                   <input
                     type="text"
@@ -400,7 +401,7 @@ const RaffleSelection: React.FC = () => {
                 <div>
                   <label className="block text-warmGray font-medium mb-2">
                     <FontAwesomeIcon icon={faInstagram} className="mr-2 text-warmGray-light" />
-                    Instagram Handle
+                    Instagram
                   </label>
                   <input
                     type="text"
@@ -418,11 +419,27 @@ const RaffleSelection: React.FC = () => {
                     <FontAwesomeIcon icon={faWhatsapp} className="mr-2 text-warmGray-light" />
                     WhatsApp
                   </label>
-                  <input
-                    type="tel"
-                    {...register('whatsapp', { required: 'Campo obrigatório' })}
-                    placeholder="(00) 00000-0000"
-                    className="input"
+                  <Controller
+                    name="whatsapp"
+                    control={control}
+                    rules={{ required: 'Campo obrigatório' }}
+                    render={({ field }) => (
+                      <InputMask
+                        mask="(99) 99999-9999"
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                      >
+                        {(inputProps: any) => (
+                          <input
+                            {...inputProps}
+                            type="tel"
+                            placeholder="(00) 00000-0000"
+                            className="input"
+                          />
+                        )}
+                      </InputMask>
+                    )}
                   />
                   {errors.whatsapp && (
                     <p className="text-red-500 text-sm mt-1">{errors.whatsapp.message}</p>

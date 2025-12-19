@@ -17,7 +17,7 @@ const Header: React.FC = () => {
               className="text-3xl text-coral group-hover:scale-110 transition-transform" 
             />
             <h1 className="text-3xl font-display font-bold text-gradient">
-              Subaruffles
+              Subarifas
             </h1>
           </Link>
 
