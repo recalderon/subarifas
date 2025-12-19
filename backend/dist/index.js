@@ -38,7 +38,7 @@ const app = new Elysia()
     })
     */
     .get('/', () => ({
-    message: '🌸 Subaruffles API',
+    message: '🌸 Subarifas API',
     version: '1.0.0',
     status: 'running',
 }))
@@ -123,7 +123,7 @@ eventBus.on('selection:created', (data) => {
 });
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
 console.log(`
-🚀 Subaruffles Backend is running!
+🚀 Subarifas Backend is running!
 📍 URL: http://localhost:${PORT}
 🌸 Summer calm vibes enabled
 `);
