@@ -16,6 +16,7 @@ const Receipt: React.FC = () => {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -36,6 +37,9 @@ const Receipt: React.FC = () => {
         console.error('Data is not an array:', response.data);
         // Handle case where data might be wrapped
         setSelections(response.data.selections || []);
+        if (response.data.receipt?.expiresAt) {
+          setExpiresAt(response.data.receipt.expiresAt);
+        }
       }
     } catch (err) {
       console.error('Error loading receipt:', err);
@@ -286,6 +290,11 @@ const Receipt: React.FC = () => {
                   NÚMEROS RESERVADOS POR 10 MINUTOS.<br/>
                   APÓS ISSO SERÃO DISPONIBILIZADOS PARA SELEÇÃO NOVAMENTE
                 </p>
+                {expiresAt && (
+                  <p className="text-xs text-red-500 font-bold mt-2">
+                    EXPIRA EM: {formatDate(expiresAt)}
+                  </p>
+                )}
               </div>
             </div>
           </div>

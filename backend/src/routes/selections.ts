@@ -16,13 +16,15 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
 
     console.log(`Found ${selections?.length} selections for receipt ${receiptId}`);
 
+    const receipt = await Receipt.findOne({ receiptId });
+
     if (!selections || selections.length === 0) {
       console.log('Receipt not found');
       set.status = 404;
       return { error: 'Receipt not found' };
     }
 
-    return selections;
+    return { selections, receipt };
   })
 
   .get('/test-db', async ({ set }) => {
@@ -116,7 +118,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
 
       // Calculate expiration time
       const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + raffle.expirationHours);
+      expiresAt.setMinutes(expiresAt.getMinutes() + raffle.expirationMinutes);
 
       // Calculate total amount
       const totalAmount = body.numbers.length * raffle.price;

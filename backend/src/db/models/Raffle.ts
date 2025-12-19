@@ -7,7 +7,7 @@ export interface IRaffle extends Document {
   endDate: Date;
   totalNumbers: number;
   price: number;
-  expirationHours: number;
+  expirationMinutes: number;
   pixName: string;
   pixKey: string;
   pixQRCode?: string;
@@ -63,11 +63,11 @@ const RaffleSchema = new Schema<IRaffle>(
       required: false,
       trim: true,
     },
-    expirationHours: {
+    expirationMinutes: {
       type: Number,
       required: true,
       min: 1,
-      default: 24,
+      default: 10,
     },
     winnerNumber: {
       type: Number,

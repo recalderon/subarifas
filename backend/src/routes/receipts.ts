@@ -40,12 +40,15 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
     // @ts-ignore
     const rafflePrice = receipt.raffleId?.price || 0;
 
-    if (receipt.status !== 'waiting_payment') {
+    // Check if expired
+    const isExpired = receipt.status === 'expired' || new Date() > new Date(receipt.expiresAt);
+
+    if (receipt.status !== 'waiting_payment' && !isExpired) {
       set.status = 400;
       return { error: 'Receipt already uploaded or processed' };
     }
 
-    const caption = `
+    let caption = `
 Comprovante de Pagamento
 Rifa: ${raffleTitle}
 Valor: R$ ${receipt.totalAmount.toFixed(2)}
@@ -54,6 +57,10 @@ Contato: ${receipt.user.preferredContact}
 ID do Recibo: ${receiptId}
     `.trim();
 
+    if (isExpired) {
+      caption = `EXPIRADO - REEMBOLSO NECESSÁRIO\n\n${caption}`;
+    }
+
     const sent = await sendReceiptToTelegram(file, caption, file.name);
 
     if (!sent) {
@@ -61,14 +68,14 @@ ID do Recibo: ${receiptId}
        return { error: 'Failed to send receipt to Telegram' };
     }
 
-    // Update status to receipt_uploaded if it's currently waiting_payment
-    if (receipt.status === 'waiting_payment') {
+    // Update status to receipt_uploaded
+    if (receipt.status === 'waiting_payment' || isExpired) {
         receipt.status = 'receipt_uploaded';
         receipt.statusHistory.push({
             status: 'receipt_uploaded',
             changedAt: new Date(),
             changedBy: 'system',
-            note: 'Receipt uploaded by user'
+            note: isExpired ? 'Receipt uploaded after expiration' : 'Receipt uploaded by user'
         });
         await receipt.save();
     }
