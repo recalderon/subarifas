@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
-import InputMask from 'react-input-mask';
+import { IMaskInput } from 'react-imask';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faInstagram, faWhatsapp, faTwitter 
@@ -424,21 +424,15 @@ const RaffleSelection: React.FC = () => {
                     control={control}
                     rules={{ required: 'Campo obrigatório' }}
                     render={({ field }) => (
-                      <InputMask
-                        mask="(99) 99999-9999"
+                      <IMaskInput
+                        mask="(00) 00000-0000"
                         value={field.value}
-                        onChange={field.onChange}
+                        onAccept={(value) => field.onChange(value)}
                         onBlur={field.onBlur}
-                      >
-                        {(inputProps: any) => (
-                          <input
-                            {...inputProps}
-                            type="tel"
-                            placeholder="(00) 00000-0000"
-                            className="input"
-                          />
-                        )}
-                      </InputMask>
+                        type="tel"
+                        placeholder="(00) 00000-0000"
+                        className="input"
+                      />
                     )}
                   />
                   {errors.whatsapp && (
