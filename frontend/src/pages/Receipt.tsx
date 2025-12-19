@@ -156,9 +156,19 @@ const Receipt: React.FC = () => {
 
                   <div className="bg-white/70 rounded-lg p-4 mb-4 shadow-sm">
                     <p className="text-xs text-warmGray-light uppercase tracking-wider mb-2 text-center">ID do Recibo</p>
-                    <p className="font-mono text-sm font-bold text-coral text-center break-all">
+                    <p className="font-mono text-sm font-bold text-coral text-center break-all mb-2">
                       {formatReceiptId(id || '')}
                     </p>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('Link copiado!');
+                      }}
+                      className="btn btn-secondary text-xs w-full"
+                    >
+                      <FontAwesomeIcon icon={faShareAlt} className="mr-1" />
+                      Copiar Link
+                    </button>
                   </div>
 
                   <div className="space-y-3">
@@ -177,6 +187,52 @@ const Receipt: React.FC = () => {
                         ))}
                       </div>
                     </div>
+
+                    {/* User Info */}
+                    <div className="bg-white/70 rounded-lg p-3 shadow-sm">
+                      <h3 className="text-xs font-bold text-warmGray mb-2 flex items-center uppercase tracking-wider">
+                        <FontAwesomeIcon icon={faUser} className="mr-1 text-coral" />
+                        Seus Dados
+                      </h3>
+                      
+                      <div className="space-y-2 text-xs">
+                        <div>
+                          <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">Contato Principal</p>
+                          <p className="font-semibold text-warmGray flex items-center capitalize">
+                            <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-1 text-xs" />
+                            {user.preferredContact}
+                          </p>
+                        </div>
+                        
+                        {user.whatsapp && (
+                          <div>
+                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">WhatsApp</p>
+                            <p className="font-semibold text-warmGray">{user.whatsapp}</p>
+                          </div>
+                        )}
+                        
+                        {user.instagramHandle && (
+                          <div>
+                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">Instagram</p>
+                            <p className="font-semibold text-warmGray">{user.instagramHandle}</p>
+                          </div>
+                        )}
+
+                        {user.xHandle && (
+                          <div>
+                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">X / Twitter</p>
+                            <p className="font-semibold text-warmGray">{user.xHandle}</p>
+                          </div>
+                        )}
+
+                        <div className="pt-2 border-t border-gray-200">
+                          <p className="text-xs text-warmGray-light flex items-center">
+                            <FontAwesomeIcon icon={faCalendarAlt} className="mr-1" />
+                            {formatDate(firstSelection.selectedAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -191,52 +247,6 @@ const Receipt: React.FC = () => {
                   <h1 className="text-2xl font-display font-bold text-warmGray mb-6">
                     Detalhes da Reserva
                   </h1>
-
-                  {/* User Info */}
-                  <div className="bg-white/70 rounded-lg p-5 mb-5 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-bold text-warmGray mb-3 flex items-center uppercase tracking-wider">
-                      <FontAwesomeIcon icon={faUser} className="mr-2 text-coral" />
-                      Seus Dados
-                    </h3>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">Contato Principal</p>
-                        <p className="font-semibold text-warmGray flex items-center capitalize">
-                          <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2 text-sm" />
-                          {user.preferredContact}
-                        </p>
-                      </div>
-                      
-                      {user.whatsapp && (
-                        <div>
-                          <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">WhatsApp</p>
-                          <p className="font-semibold text-warmGray">{user.whatsapp}</p>
-                        </div>
-                      )}
-                      
-                      {user.instagramHandle && (
-                        <div>
-                          <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">Instagram</p>
-                          <p className="font-semibold text-warmGray">{user.instagramHandle}</p>
-                        </div>
-                      )}
-
-                      {user.xHandle && (
-                        <div>
-                          <p className="text-xs text-warmGray-light uppercase tracking-wider mb-1">X / Twitter</p>
-                          <p className="font-semibold text-warmGray">{user.xHandle}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <p className="text-xs text-warmGray-light flex items-center">
-                        <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                        Reservado em: {formatDate(firstSelection.selectedAt)}
-                      </p>
-                    </div>
-                  </div>
 
                   {/* PIX Payment */}
                   <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5 mb-5 shadow-sm border border-green-100">
