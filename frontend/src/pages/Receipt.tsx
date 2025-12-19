@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faCheckCircle, faTicketAlt, faCalendarAlt, faUser, faArrowLeft, faShareAlt
+  faCheckCircle, faTicketAlt, faCalendarAlt, faUser, faShareAlt
 } from '@fortawesome/free-solid-svg-icons';
 import { faWhatsapp, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { selectionAPI, receiptAPI } from '../services/api';
@@ -120,235 +120,175 @@ const Receipt: React.FC = () => {
   // Use shared formatter
 
   return (
-    <div className="min-h-screen bg-summer py-8 px-4">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-summer py-8 px-4 flex items-center justify-center">
+      <div className="max-w-5xl w-full mx-auto">
         {/* Raffle Ticket Design - Horizontal Layout */}
-        <div className="relative animate-fadeIn">
-          {/* Ticket Container with perforated edge effect */}
-          <div className="bg-white rounded-lg shadow-2xl overflow-hidden relative" style={{
-            background: 'linear-gradient(135deg, #fff5f5 0%, #ffffff 100%)'
-          }}>
+        <div className="relative animate-fadeIn drop-shadow-2xl">
+          
+          <div className="flex flex-col md:flex-row bg-white rounded-xl overflow-hidden min-h-[500px]">
             
-            {/* Decorative perforated line in the middle */}
-            <div className="absolute left-1/3 top-0 bottom-0 w-0 border-l-2 border-dashed border-gray-300 z-10"></div>
-            
-            {/* Circular cutouts for tear effect */}
-            <div className="absolute left-1/3 top-0 w-6 h-6 bg-summer rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute left-1/3 top-1/4 w-6 h-6 bg-summer rounded-full -translate-x-1/2"></div>
-            <div className="absolute left-1/3 top-1/2 w-6 h-6 bg-summer rounded-full -translate-x-1/2"></div>
-            <div className="absolute left-1/3 top-3/4 w-6 h-6 bg-summer rounded-full -translate-x-1/2"></div>
-            <div className="absolute left-1/3 bottom-0 w-6 h-6 bg-summer rounded-full -translate-x-1/2 translate-y-1/2"></div>
+            {/* Left Stub */}
+            <div className="w-full md:w-1/3 bg-[#FFF0F5] p-8 flex flex-col relative border-r-2 border-dashed border-gray-300">
+              {/* Decorative semi-circles for perforation effect */}
+              <div className="absolute -right-3 top-0 w-6 h-6 bg-summer rounded-full"></div>
+              <div className="absolute -right-3 bottom-0 w-6 h-6 bg-summer rounded-full"></div>
+              
+              {/* Title */}
+              <div className="mb-8">
+                <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">RIFA</h2>
+                <p className="text-xl font-bold text-gray-800 leading-tight">{raffle.title}</p>
+              </div>
 
-            {/* Top decorative border */}
-            <div className="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-coral via-pink-500 to-peach"></div>
-
-            <div className="flex flex-col md:flex-row min-h-[500px]">
-              {/* Left Stub - Receipt ID and Basic Info */}
-              <div className="w-full md:w-1/3 p-8 flex flex-col justify-between bg-gradient-to-br from-coral/5 to-peach/10 relative">
-                <div>
-                  <div className="text-center mb-6">
-                    <FontAwesomeIcon icon={faCheckCircle} className="text-5xl text-teal-light mb-3" />
-                    <h2 className="text-xl font-display font-bold text-warmGray mb-1">
-                      Confirmado!
-                    </h2>
-                    <p className="text-xs text-warmGray-light uppercase tracking-wider">Recibo</p>
-                  </div>
-
-                  <div className="bg-white/70 rounded-lg p-4 mb-4 shadow-sm">
-                    <p className="text-xs text-warmGray-light uppercase tracking-wider mb-2 text-center">ID do Recibo</p>
-                    <p className="font-mono text-sm font-bold text-coral text-center break-all mb-2">
-                      {formatReceiptId(id || '')}
-                    </p>
-                    <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(window.location.href);
-                        alert('Link copiado!');
-                      }}
-                      className="btn btn-secondary text-xs w-full"
-                    >
-                      <FontAwesomeIcon icon={faShareAlt} className="mr-1" />
-                      Copiar Link
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="bg-white/70 rounded-lg p-3 shadow-sm">
-                      <p className="text-xs text-warmGray-light uppercase tracking-wider">Rifa</p>
-                      <p className="font-semibold text-warmGray text-sm">{raffle.title}</p>
-                    </div>
-
-                    <div className="bg-white/70 rounded-lg p-3 shadow-sm">
-                      <p className="text-xs text-warmGray-light uppercase tracking-wider mb-2">Números ({selections.length})</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {selections.map((s: any) => (
-                          <span key={s._id} className="bg-coral text-white px-2 py-0.5 rounded-full font-bold text-xs shadow-sm">
-                            {s.number}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* User Info */}
-                    <div className="bg-white/70 rounded-lg p-3 shadow-sm">
-                      <h3 className="text-xs font-bold text-warmGray mb-2 flex items-center uppercase tracking-wider">
-                        <FontAwesomeIcon icon={faUser} className="mr-1 text-coral" />
-                        Seus Dados
-                      </h3>
-                      
-                      <div className="space-y-2 text-xs">
-                        <div>
-                          <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">Contato Principal</p>
-                          <p className="font-semibold text-warmGray flex items-center capitalize">
-                            <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-1 text-xs" />
-                            {user.preferredContact}
-                          </p>
-                        </div>
-                        
-                        {user.whatsapp && (
-                          <div>
-                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">WhatsApp</p>
-                            <p className="font-semibold text-warmGray">{user.whatsapp}</p>
-                          </div>
-                        )}
-                        
-                        {user.instagramHandle && (
-                          <div>
-                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">Instagram</p>
-                            <p className="font-semibold text-warmGray">{user.instagramHandle}</p>
-                          </div>
-                        )}
-
-                        {user.xHandle && (
-                          <div>
-                            <p className="text-xs text-warmGray-light uppercase tracking-wider mb-0.5">X / Twitter</p>
-                            <p className="font-semibold text-warmGray">{user.xHandle}</p>
-                          </div>
-                        )}
-
-                        <div className="pt-2 border-t border-gray-200">
-                          <p className="text-xs text-warmGray-light flex items-center">
-                            <FontAwesomeIcon icon={faCalendarAlt} className="mr-1" />
-                            {formatDate(firstSelection.selectedAt)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-center mt-4">
-                  <FontAwesomeIcon icon={faTicketAlt} className="text-4xl text-coral/20" />
+              {/* Numbers */}
+              <div className="mb-8">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">NÚMEROS ({selections.length})</p>
+                <div className="flex flex-wrap gap-2">
+                  {selections.map((s: any) => (
+                    <span key={s._id} className="bg-[#FF8FAB] text-white w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm shadow-sm">
+                      {s.number}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* Right Main Body - Details and Actions */}
-              <div className="w-full md:w-2/3 p-8 flex flex-col">
-                <div className="flex-1">
-                  <h1 className="text-2xl font-display font-bold text-warmGray mb-6">
-                    Detalhes da Reserva
-                  </h1>
-
-                  {/* PIX Payment */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5 mb-5 shadow-sm border border-green-100">
-                    <h3 className="text-sm font-bold text-warmGray mb-3 uppercase tracking-wider">💳 Pagamento via PIX</h3>
-                    <div className="text-sm space-y-2">
-                      <p className="text-warmGray">
-                        <strong className="text-2xl text-coral font-display">R$ {(selections.length * (raffle.price || 0)).toFixed(2)}</strong>
-                      </p>
-                      <p className="text-warmGray-light">
-                        Chave: <strong className="text-warmGray">{raffle.pixKey}</strong>
-                      </p>
-                      <p className="text-warmGray-light">
-                        Nome: <strong className="text-warmGray">{raffle.pixName}</strong>
-                      </p>
-                      <p className="text-xs text-orange-600 font-semibold mt-2">
-                        ⏰ Prazo: 30 minutos
-                      </p>
-                    </div>
-                    {raffle.pixQRCode && (
-                      <div className="mt-4 text-center bg-white rounded p-3">
-                        <img src={raffle.pixQRCode} alt="PIX QR Code" className="mx-auto h-32 w-auto" />
-                      </div>
-                    )}
+              {/* User Data */}
+              <div className="flex-1">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center">
+                  <FontAwesomeIcon icon={faUser} className="mr-2 text-[#FF8FAB]" />
+                  SEUS DADOS
+                </h3>
+                
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">CONTATO PRINCIPAL</p>
+                    <p className="text-sm font-bold text-gray-700 flex items-center capitalize">
+                      <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2 text-gray-400" />
+                      {user.preferredContact}
+                    </p>
                   </div>
-
-                  {/* Upload Receipt */}
-                  <div className="bg-white/70 rounded-lg p-5 mb-5 shadow-sm border border-gray-100">
-                    <h3 className="text-sm font-bold text-warmGray mb-3 uppercase tracking-wider">📎 Enviar Comprovante</h3>
-                    
-                    {uploadSuccess ? (
-                      <div className="text-center p-4 bg-green-100 rounded-lg text-green-700">
-                        <FontAwesomeIcon icon={faCheckCircle} className="text-2xl mb-2" />
-                        <p className="font-semibold">Comprovante enviado!</p>
-                        <p className="text-sm">Aguarde a confirmação.</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="text-warmGray-light text-xs mb-3">
-                          Envie o comprovante de pagamento para confirmar sua participação.
-                        </p>
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                          id="receipt-upload"
-                          disabled={uploading}
-                        />
-                        <label
-                          htmlFor="receipt-upload"
-                          className={`btn btn-primary w-full cursor-pointer flex items-center justify-center text-sm ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                        >
-                          {uploading ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                              Enviando...
-                            </>
-                          ) : (
-                            <>
-                              <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
-                              Selecionar Comprovante
-                            </>
-                          )}
-                        </label>
-                        <p className="text-xs text-center text-warmGray-light mt-2">
-                          Imagem ou PDF (Max 5MB)
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="grid grid-cols-2 gap-3 mt-4">
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      alert('Link copiado!');
-                    }}
-                    className="btn btn-secondary text-sm"
-                  >
-                    <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
-                    Copiar Link
-                  </button>
                   
-                  <button 
-                    onClick={() => navigate('/')}
-                    className="btn btn-outline text-sm"
-                  >
-                    <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                    Início
-                  </button>
+                  {user.whatsapp && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">WHATSAPP</p>
+                      <p className="text-sm font-bold text-gray-700">{user.whatsapp}</p>
+                    </div>
+                  )}
+                  
+                  {user.instagramHandle && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">INSTAGRAM</p>
+                      <p className="text-sm font-bold text-gray-700">{user.instagramHandle}</p>
+                    </div>
+                  )}
+
+                  {user.xHandle && (
+                    <div>
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">X / TWITTER</p>
+                      <p className="text-sm font-bold text-gray-700">{user.xHandle}</p>
+                    </div>
+                  )}
+
+                  <div className="pt-2 mt-2">
+                    <p className="text-xs text-gray-500 flex items-center font-medium">
+                      <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 opacity-50" />
+                      {formatDate(firstSelection.selectedAt)}
+                    </p>
+                  </div>
                 </div>
+              </div>
+
+              {/* Bottom Icon */}
+              <div className="mt-6 flex justify-center opacity-10">
+                <FontAwesomeIcon icon={faTicketAlt} className="text-5xl text-[#FF8FAB]" />
+              </div>
+            </div>
+
+            {/* Right Main Body */}
+            <div className="w-full md:w-2/3 p-8 bg-white flex flex-col relative">
+              {/* Header */}
+              <div className="flex justify-between items-start mb-8">
+                <h1 className="text-2xl font-bold text-gray-700 tracking-tight">Detalhes da Reserva</h1>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">ID DO RECIBO DA RESERVA</p>
+                  <p className="text-sm font-bold text-[#FF8FAB] font-mono tracking-widest">{formatReceiptId(id!)}</p>
+                </div>
+              </div>
+
+              {/* PIX Payment */}
+              <div className="bg-[#F0FFF4] rounded-lg p-6 mb-8 border border-green-100">
+                <div className="flex items-center mb-4">
+                  <span className="text-green-600 font-bold text-xs uppercase tracking-wider flex items-center">
+                    <span className="mr-2 text-lg">💳</span> PAGAMENTO VIA PIX
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row justify-between items-end gap-4">
+                  <div className="text-4xl font-bold text-[#FF8FAB]">
+                    R$ {(selections.length * (raffle.price || 0)).toFixed(2)}
+                  </div>
+                  <div className="text-right text-sm text-gray-600 space-y-1">
+                    <p>Chave: <span className="font-bold text-gray-800">{raffle.pixKey}</span></p>
+                    <p>Nome: <span className="font-bold text-gray-800">{raffle.pixName}</span></p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Section */}
+              <div className="mb-8">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center">
+                  <span className="mr-2 text-gray-400">📎</span> ENVIAR COMPROVANTE
+                </h3>
+                
+                {uploadSuccess ? (
+                  <div className="text-center p-6 bg-green-50 rounded-lg text-green-700 border border-green-100">
+                    <FontAwesomeIcon icon={faCheckCircle} className="text-3xl mb-2" />
+                    <p className="font-bold">Comprovante enviado com sucesso!</p>
+                    <p className="text-sm opacity-80">Sua participação será confirmada em breve.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-xs text-gray-400 mb-4">
+                      Envie o comprovante de pagamento para confirmar sua participação.
+                    </p>
+                    <input
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="receipt-upload"
+                      disabled={uploading}
+                    />
+                    <label
+                      htmlFor="receipt-upload"
+                      className={`w-full bg-[#FF8FAB] hover:bg-[#FF7AA0] text-white font-bold py-3 px-4 rounded-lg cursor-pointer flex items-center justify-center transition-colors shadow-sm ${uploading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                      {uploading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon icon={faShareAlt} className="mr-2" />
+                          Selecionar Comprovante
+                        </>
+                      )}
+                    </label>
+                    <p className="text-[10px] text-center text-gray-400 mt-2">
+                      Imagem ou PDF (Max 5MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Warning */}
+              <div className="mt-auto text-center">
+                <p className="text-xs font-bold text-gray-800 uppercase tracking-wide leading-relaxed">
+                  NÚMEROS RESERVADOS POR 10 MINUTOS.<br/>
+                  APÓS ISSO SERÃO DISPONIBILIZADOS PARA SELEÇÃO NOVAMENTE
+                </p>
               </div>
             </div>
           </div>
-
-          {/* Decorative ticket corner tears */}
-          <div className="absolute -top-2 -left-2 w-8 h-8 bg-coral/10 rounded-full"></div>
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-peach/10 rounded-full"></div>
-          <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-mint/10 rounded-full"></div>
-          <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-pink-300/10 rounded-full"></div>
         </div>
       </div>
     </div>
