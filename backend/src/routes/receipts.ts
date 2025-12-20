@@ -62,7 +62,6 @@ Rifa: ${raffleTitle}
 Valor: R$ ${receipt.totalAmount.toFixed(2)}
 
 ${userDetails.trim()}
-Contato Preferido: ${receipt.user.preferredContact}
 ID do Recibo: ${receiptId}
 Última Atualização: ${lastUpdate}
     `.trim();

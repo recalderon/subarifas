@@ -19,7 +19,6 @@ export interface IReceipt extends Document {
     xHandle: string;
     instagramHandle: string;
     whatsapp: string;
-    preferredContact: 'x' | 'instagram' | 'whatsapp';
   };
   totalAmount: number;
   createdAt: Date;
@@ -94,11 +93,6 @@ const ReceiptSchema = new Schema<IReceipt>(
         type: String,
         required: false,
         trim: true,
-      },
-      preferredContact: {
-        type: String,
-        required: true,
-        enum: ['x', 'instagram', 'whatsapp'],
       },
     },
     totalAmount: {

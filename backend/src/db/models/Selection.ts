@@ -9,7 +9,6 @@ export interface ISelection extends Document {
     xHandle: string;
     instagramHandle: string;
     whatsapp: string;
-    preferredContact: 'x' | 'instagram' | 'whatsapp';
   };
   selectedAt: Date;
 }
@@ -52,11 +51,6 @@ const SelectionSchema = new Schema<ISelection>(
         type: String,
         required: false,
         trim: true,
-      },
-      preferredContact: {
-        type: String,
-        required: true,
-        enum: ['x', 'instagram', 'whatsapp'],
       },
     },
     selectedAt: {

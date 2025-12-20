@@ -15,7 +15,6 @@ interface UserForm {
   xHandle: string;
   instagramHandle: string;
   whatsapp: string;
-  preferredContact: 'x' | 'instagram' | 'whatsapp';
 }
 
 const RaffleSelection: React.FC = () => {
@@ -156,14 +155,6 @@ const RaffleSelection: React.FC = () => {
       // Build a numbers array to submit in a single request
       const numbers = selectedNumbers.map(n => ({ number: n, pageNumber: currentPage }));
 
-      // Infer preferred contact
-      let preferredContact = data.preferredContact;
-      if (!preferredContact) {
-        if (data.whatsapp) preferredContact = 'whatsapp';
-        else if (data.instagramHandle) preferredContact = 'instagram';
-        else if (data.xHandle) preferredContact = 'x';
-      }
-
       const res = await selectionAPI.create(id!, {
         receiptId,
         numbers,
@@ -171,7 +162,6 @@ const RaffleSelection: React.FC = () => {
           xHandle: data.xHandle,
           instagramHandle: data.instagramHandle,
           whatsapp: data.whatsapp,
-          preferredContact,
         },
       });
 

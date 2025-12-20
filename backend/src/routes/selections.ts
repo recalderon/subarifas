@@ -39,7 +39,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         receiptId: testId,
         number: 1, 
         pageNumber: 9999,
-        user: { xHandle: 'test', instagramHandle: 'test', whatsapp: '000', preferredContact: 'x' }
+        user: { xHandle: 'test', instagramHandle: 'test', whatsapp: '000' }
       });
       await selection.save();
       console.log('Test selection saved');
@@ -70,18 +70,10 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .post('/:raffleId', async ({ params: { raffleId }, body, set }) => {
     try {
       // Validate user contact info
-      const { xHandle, instagramHandle, whatsapp, preferredContact } = body.user;
+      const { xHandle, instagramHandle, whatsapp } = body.user;
       if (!xHandle && !instagramHandle && !whatsapp) {
         set.status = 400;
         return { error: 'At least one contact method (X, Instagram, or WhatsApp) is required' };
-      }
-
-      // Infer preferred contact if not provided
-      let finalPreferredContact = preferredContact;
-      if (!finalPreferredContact) {
-        if (whatsapp) finalPreferredContact = 'whatsapp';
-        else if (instagramHandle) finalPreferredContact = 'instagram';
-        else if (xHandle) finalPreferredContact = 'x';
       }
 
       // Check if raffle exists
@@ -166,7 +158,6 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         numbers: body.numbers,
         user: {
           ...body.user,
-          preferredContact: finalPreferredContact,
         },
         totalAmount,
         expiresAt,
@@ -186,7 +177,6 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         pageNumber: item.pageNumber,
         user: {
             ...body.user,
-            preferredContact: finalPreferredContact,
         },
       }));
 
@@ -222,11 +212,6 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         xHandle: t.Optional(t.String()),
         instagramHandle: t.Optional(t.String()),
         whatsapp: t.Optional(t.String()),
-        preferredContact: t.Optional(t.Union([
-          t.Literal('x'),
-          t.Literal('instagram'),
-          t.Literal('whatsapp'),
-        ])),
       }),
     }),
   });

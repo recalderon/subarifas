@@ -123,15 +123,14 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
 
         const selections = await Selection.find({ raffleId: id }).sort({ number: 1 });
         
-        let csvContent = 'Numero,Recibo,X,Instagram,WhatsApp,Contato Preferido\n';
+        let csvContent = 'Numero,Recibo,X,Instagram,WhatsApp\n';
         
         selections.forEach(sel => {
           const x = sel.user.xHandle || '';
           const insta = sel.user.instagramHandle || '';
           const whats = sel.user.whatsapp || '';
-          const pref = sel.user.preferredContact || '';
           
-          csvContent += `${sel.number},${sel.receiptId},${x},${insta},${whats},${pref}\n`;
+          csvContent += `${sel.number},${sel.receiptId},${x},${insta},${whats}\n`;
         });
 
         set.headers['Content-Type'] = 'text/csv';

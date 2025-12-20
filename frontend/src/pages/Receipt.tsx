@@ -113,14 +113,7 @@ const Receipt: React.FC = () => {
     });
   };
 
-  const getContactIcon = (type: string) => {
-    switch (type) {
-      case 'whatsapp': return faWhatsapp;
-      case 'instagram': return faInstagram;
-      case 'x': return faTwitter;
-      default: return faUser;
-    }
-  };
+
 
   // Use shared formatter
 
@@ -165,11 +158,7 @@ const Receipt: React.FC = () => {
                 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">CONTATO PRINCIPAL</p>
-                    <p className="text-sm font-bold text-gray-700 flex items-center capitalize">
-                      <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2 text-gray-400" />
-                      {user.preferredContact}
-                    </p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">CONTATO</p>
                   </div>
                   
                   {user.whatsapp && (
