@@ -21,7 +21,7 @@ interface UserForm {
 const RaffleSelection: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { register, handleSubmit, control, formState: { errors } } = useForm<UserForm>();
+  const { register, handleSubmit, control } = useForm<UserForm>();
 
   const [raffle, setRaffle] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -137,6 +137,11 @@ const RaffleSelection: React.FC = () => {
       return;
     }
 
+    if (!data.xHandle && !data.instagramHandle && !data.whatsapp) {
+      alert('Preencha pelo menos um meio de contato (X, Instagram ou WhatsApp).');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -146,6 +151,14 @@ const RaffleSelection: React.FC = () => {
       // Build a numbers array to submit in a single request
       const numbers = selectedNumbers.map(n => ({ number: n, pageNumber: currentPage }));
 
+      // Infer preferred contact
+      let preferredContact = data.preferredContact;
+      if (!preferredContact) {
+        if (data.whatsapp) preferredContact = 'whatsapp';
+        else if (data.instagramHandle) preferredContact = 'instagram';
+        else if (data.xHandle) preferredContact = 'x';
+      }
+
       const res = await selectionAPI.create(id!, {
         receiptId,
         numbers,
@@ -153,7 +166,7 @@ const RaffleSelection: React.FC = () => {
           xHandle: data.xHandle,
           instagramHandle: data.instagramHandle,
           whatsapp: data.whatsapp,
-          preferredContact: data.preferredContact,
+          preferredContact,
         },
       });
 
@@ -389,13 +402,10 @@ const RaffleSelection: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    {...register('xHandle', { required: 'Campo obrigatório' })}
+                    {...register('xHandle')}
                     placeholder="@seu_usuario"
                     className="input"
                   />
-                  {errors.xHandle && (
-                    <p className="text-red-500 text-sm mt-1">{errors.xHandle.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -405,13 +415,10 @@ const RaffleSelection: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    {...register('instagramHandle', { required: 'Campo obrigatório' })}
+                    {...register('instagramHandle')}
                     placeholder="@seu_usuario"
                     className="input"
                   />
-                  {errors.instagramHandle && (
-                    <p className="text-red-500 text-sm mt-1">{errors.instagramHandle.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -422,7 +429,6 @@ const RaffleSelection: React.FC = () => {
                   <Controller
                     name="whatsapp"
                     control={control}
-                    rules={{ required: 'Campo obrigatório' }}
                     render={({ field }) => (
                       <IMaskInput
                         mask="(00) 00000-0000"
@@ -435,48 +441,11 @@ const RaffleSelection: React.FC = () => {
                       />
                     )}
                   />
-                  {errors.whatsapp && (
-                    <p className="text-red-500 text-sm mt-1">{errors.whatsapp.message}</p>
-                  )}
                 </div>
 
-                <div>
-                  <label className="block text-warmGray font-medium mb-2">
-                    Preferência de Contato
-                  </label>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        value="x"
-                        {...register('preferredContact', { required: 'Selecione uma opção' })}
-                        className="text-coral focus:ring-coral"
-                      />
-                      <span className="text-warmGray">X / Twitter</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        value="instagram"
-                        {...register('preferredContact', { required: 'Selecione uma opção' })}
-                        className="text-coral focus:ring-coral"
-                      />
-                      <span className="text-warmGray">Instagram</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        value="whatsapp"
-                        {...register('preferredContact', { required: 'Selecione uma opção' })}
-                        className="text-coral focus:ring-coral"
-                      />
-                      <span className="text-warmGray">WhatsApp</span>
-                    </label>
-                  </div>
-                  {errors.preferredContact && (
-                    <p className="text-red-500 text-sm mt-1">{errors.preferredContact.message}</p>
-                  )}
-                </div>
+                <p className="text-xs text-warmGray-light text-center mt-2">
+                  Preencha pelo menos um meio de contato.
+                </p>
               </div>
 
               <button

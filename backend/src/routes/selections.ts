@@ -69,6 +69,21 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
 
   .post('/:raffleId', async ({ params: { raffleId }, body, set }) => {
     try {
+      // Validate user contact info
+      const { xHandle, instagramHandle, whatsapp, preferredContact } = body.user;
+      if (!xHandle && !instagramHandle && !whatsapp) {
+        set.status = 400;
+        return { error: 'At least one contact method (X, Instagram, or WhatsApp) is required' };
+      }
+
+      // Infer preferred contact if not provided
+      let finalPreferredContact = preferredContact;
+      if (!finalPreferredContact) {
+        if (whatsapp) finalPreferredContact = 'whatsapp';
+        else if (instagramHandle) finalPreferredContact = 'instagram';
+        else if (xHandle) finalPreferredContact = 'x';
+      }
+
       // Check if raffle exists
       const raffle = await Raffle.findById(raffleId);
       
@@ -149,7 +164,10 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         raffleId,
         status: 'waiting_payment',
         numbers: body.numbers,
-        user: body.user,
+        user: {
+          ...body.user,
+          preferredContact: finalPreferredContact,
+        },
         totalAmount,
         expiresAt,
         statusHistory: [{
@@ -166,7 +184,10 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         receiptId,
         number: item.number,
         pageNumber: item.pageNumber,
-        user: body.user,
+        user: {
+            ...body.user,
+            preferredContact: finalPreferredContact,
+        },
       }));
 
       await Selection.insertMany(selections);
@@ -180,8 +201,7 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         });
       }
 
-      return { success: true, receiptId: body.receiptId };
-      return { success: true, receiptId };
+      return { success: true, receiptId: body.receiptId || receiptId };
     } catch (err: any) {
       console.error('Error creating selections:', {
         raffleId,
@@ -199,14 +219,14 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         pageNumber: t.Number(),
       })),
       user: t.Object({
-        xHandle: t.String(),
-        instagramHandle: t.String(),
-        whatsapp: t.String(),
-        preferredContact: t.Union([
+        xHandle: t.Optional(t.String()),
+        instagramHandle: t.Optional(t.String()),
+        whatsapp: t.Optional(t.String()),
+        preferredContact: t.Optional(t.Union([
           t.Literal('x'),
           t.Literal('instagram'),
           t.Literal('whatsapp'),
-        ]),
+        ])),
       }),
     }),
   });
