@@ -48,9 +48,9 @@ const ServerWakeUp: React.FC<ServerWakeUpProps> = ({ children }) => {
         
         {isLongWait && (
           <p className="text-gray-600 animate-pulse">
-            Since we are on a free tier, the server might be sleeping. 
+            Parece que o servidor estava tirando um cochilo. 
             <br />
-            This can take up to a minute. Please wait... 🌸
+            Isso pode levar até um minuto. Por favor, aguarde...
           </p>
         )}
       </div>

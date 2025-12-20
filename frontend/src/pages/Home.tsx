@@ -55,7 +55,7 @@ const Home: React.FC = () => {
           />
 
           <h1 className="text-6xl font-display font-bold text-gradient mb-6 animate-fadeIn">
-            Bem-vindo ao Subarifas! 🌸
+            Bem-vindo ao Subarifas!
           </h1>
           <img 
             src="/subarifa_logo.PNG" 
