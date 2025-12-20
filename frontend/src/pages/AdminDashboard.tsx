@@ -15,7 +15,7 @@ interface RaffleForm {
   endDate: string;
   totalNumbers: number;
   price: number;
-  expirationHours: number;
+
   pixName: string;
   pixKey: string;
   pixQRCode?: string;
@@ -28,7 +28,7 @@ const AdminDashboard: React.FC = () => {
     defaultValues: {
       totalNumbers: 100,
       price: 0,
-      expirationHours: 24,
+
       pixName: '',
       pixKey: '',
     }
@@ -113,7 +113,7 @@ const AdminDashboard: React.FC = () => {
     defaultValues: {
       totalNumbers: 100,
       price: 0,
-      expirationHours: 24,
+
       pixName: '',
       pixKey: '',
       pixQRCode: '',
@@ -199,7 +199,7 @@ const AdminDashboard: React.FC = () => {
       endDate: raffle.endDate?.slice?.(0, 16) || '',
       totalNumbers: raffle.totalNumbers,
       price: raffle.price,
-      expirationHours: raffle.expirationHours,
+
       pixName: raffle.pixName || '',
       pixKey: raffle.pixKey || '',
       pixQRCode: raffle.pixQRCode || '',
@@ -353,17 +353,7 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-warmGray font-medium mb-2">Horas para Expiração</label>
-                  <input
-                    type="number"
-                    min="1"
-                    {...register('expirationHours', { required: 'Campo obrigatório', min: 1, valueAsNumber: true })}
-                    className="input"
-                    placeholder="24"
-                  />
-                  {errors.expirationHours && <p className="text-red-500 text-sm mt-1">{errors.expirationHours.message}</p>}
-                </div>
+
               </div>
 
               <div className="flex gap-4">
