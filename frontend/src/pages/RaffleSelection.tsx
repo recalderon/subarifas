@@ -21,7 +21,7 @@ interface UserForm {
 const RaffleSelection: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { register, handleSubmit, control } = useForm<UserForm>();
+  const { register, handleSubmit, control, setError, clearErrors, formState: { errors } } = useForm<UserForm>();
 
   const [raffle, setRaffle] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -137,10 +137,15 @@ const RaffleSelection: React.FC = () => {
       return;
     }
 
-    if (!data.xHandle && !data.instagramHandle && !data.whatsapp) {
-      alert('Preencha pelo menos um meio de contato (X, Instagram ou WhatsApp).');
+    const hasConteact = data.xHandle || data.instagramHandle || data.whatsapp;
+    if (!hasConteact) {
+      setError('root', {
+        type: 'manual',
+        message: 'Preencha pelo menos um meio de contato (X, Instagram ou WhatsApp).'
+      });
       return;
     }
+    clearErrors('root');
 
     setSubmitting(true);
 
@@ -446,6 +451,11 @@ const RaffleSelection: React.FC = () => {
                 <p className="text-xs text-warmGray-light text-center mt-2">
                   Preencha pelo menos um meio de contato.
                 </p>
+                {errors.root && (
+                  <p className="text-red-500 text-sm text-center mt-2 font-medium">
+                    {errors.root.message}
+                  </p>
+                )}
               </div>
 
               <button
