@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../context/AuthContext';
 
 const Header: React.FC = () => {
@@ -12,10 +12,6 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-3 group">
-            <FontAwesomeIcon 
-              icon={faBook} 
-              className="text-3xl text-coral group-hover:scale-110 transition-transform" 
-            />
             <h1 className="text-3xl font-display font-bold text-gradient">
               Subarifas
             </h1>
