@@ -48,13 +48,23 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
       return { error: 'Receipt already uploaded or processed' };
     }
 
+    const lastHistory = receipt.statusHistory[receipt.statusHistory.length - 1];
+    const lastUpdate = lastHistory ? new Date(lastHistory.changedAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'N/A';
+
+    let userDetails = '';
+    if (receipt.user.xHandle) userDetails += `X: ${receipt.user.xHandle}\n`;
+    if (receipt.user.instagramHandle) userDetails += `Instagram: ${receipt.user.instagramHandle}\n`;
+    if (receipt.user.whatsapp) userDetails += `WhatsApp: ${receipt.user.whatsapp}\n`;
+
     let caption = `
 Comprovante de Pagamento
 Rifa: ${raffleTitle}
 Valor: R$ ${receipt.totalAmount.toFixed(2)}
-Nome: ${receipt.user.xHandle || receipt.user.instagramHandle || receipt.user.whatsapp}
-Contato: ${receipt.user.preferredContact}
+
+${userDetails.trim()}
+Contato Preferido: ${receipt.user.preferredContact}
 ID do Recibo: ${receiptId}
+Última Atualização: ${lastUpdate}
     `.trim();
 
     if (isExpired) {
