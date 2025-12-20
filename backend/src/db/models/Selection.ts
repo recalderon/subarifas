@@ -40,17 +40,17 @@ const SelectionSchema = new Schema<ISelection>(
     user: {
       xHandle: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
       },
       instagramHandle: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
       },
       whatsapp: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
       },
       preferredContact: {
