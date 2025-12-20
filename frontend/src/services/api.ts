@@ -41,6 +41,7 @@ export const raffleAPI = {
   updateStatus: (id: string, status: 'open' | 'waiting' | 'closed') => 
     api.patch(`/api/raffles/${id}/status`, { status }),
   delete: (id: string) => api.delete(`/api/raffles/${id}`),
+  downloadCSV: (id: string) => api.get(`/api/raffles/${id}/csv`, { responseType: 'blob' }),
 };
 
 // Selection API

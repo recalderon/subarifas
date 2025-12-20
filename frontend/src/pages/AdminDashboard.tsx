@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faPlus, faPlay, faStop, faTrash, faEye, faTicket, faEdit, faTrophy 
+  faPlus, faPlay, faStop, faTrash, faEye, faTicket, faEdit, faTrophy, faFileCsv
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { raffleAPI, receiptAPI } from '../services/api';
@@ -228,6 +228,21 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDownloadCSV = async (raffleId: string, title: string) => {
+    try {
+      const response = await raffleAPI.downloadCSV(raffleId);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${title.replace(/\s+/g, '_')}_numeros.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      alert('Erro ao baixar CSV');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-summer flex items-center justify-center">
@@ -430,6 +445,15 @@ const AdminDashboard: React.FC = () => {
                   <FontAwesomeIcon icon={raffle.status === 'open' ? faStop : raffle.status === 'waiting' ? faTrophy : faPlay} className="mr-2" />
                   {raffle.status === 'open' ? 'Aguardar Sorteio' : raffle.status === 'waiting' ? 'Encerrar' : 'Reabrir'}
                 </button>
+                {raffle.status === 'waiting' && (
+                  <button
+                    onClick={() => handleDownloadCSV(raffle._id, raffle.title)}
+                    className="btn btn-secondary text-sm bg-green-100 hover:bg-green-200 text-green-800"
+                  >
+                    <FontAwesomeIcon icon={faFileCsv} className="mr-2" />
+                    Baixar CSV
+                  </button>
+                )}
                 <button
                   onClick={() => viewReceipts(raffle._id)}
                   className="btn btn-secondary text-sm"

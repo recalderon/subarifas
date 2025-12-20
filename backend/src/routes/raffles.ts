@@ -101,10 +101,44 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     };
   })
 
+  // CSV Export for Admin (protected logic but public endpoint with token query usually, but here keeping it public or under auth check?) 
+  // Ideally this should be protected. Let's put it OUTSIDE the public block if we want auth, or INSIDE if we want to pass token.
+  // The user asked for a button, so likely a protected call. I will put it inside the protected group but as a GET.
+  // Actually, standard browser download is easier with GET and cookies/token. 
+  // For simplicity with the current authMiddleware (which expects Bearer header), doing a direct browser navigation download is tricky 
+  // unless we use a temporary token or just fetch blob in frontend.
+  // I will implement it as a protected route and use frontend blob handling.
+
   // Protected admin routes
   .group('', (app) =>
     app
       .use(authMiddleware)
+
+      .get('/:id/csv', async ({ params: { id }, set }) => {
+        const raffle = await Raffle.findById(id);
+        if (!raffle) {
+          set.status = 404;
+          return { error: 'Raffle not found' };
+        }
+
+        const selections = await Selection.find({ raffleId: id }).sort({ number: 1 });
+        
+        let csvContent = 'Numero,Recibo,X,Instagram,WhatsApp,Contato Preferido\n';
+        
+        selections.forEach(sel => {
+          const x = sel.user.xHandle || '';
+          const insta = sel.user.instagramHandle || '';
+          const whats = sel.user.whatsapp || '';
+          const pref = sel.user.preferredContact || '';
+          
+          csvContent += `${sel.number},${sel.receiptId},${x},${insta},${whats},${pref}\n`;
+        });
+
+        set.headers['Content-Type'] = 'text/csv';
+        set.headers['Content-Disposition'] = `attachment; filename="raffle-${id}-numbers.csv"`;
+        
+        return csvContent;
+      })
       
       .post('/', async ({ body, set, request }) => {
         try {
