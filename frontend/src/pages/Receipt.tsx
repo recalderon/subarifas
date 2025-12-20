@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCheckCircle, faTicketAlt, faCalendarAlt, faUser, faShareAlt
 } from '@fortawesome/free-solid-svg-icons';
-import { faWhatsapp, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
+
 import { selectionAPI, receiptAPI } from '../services/api';
 import { formatReceiptId } from '../utils/receiptId';
 
