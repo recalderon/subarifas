@@ -57,6 +57,11 @@ const Home: React.FC = () => {
           <h1 className="text-6xl font-display font-bold text-gradient mb-6 animate-fadeIn">
             Bem-vindo ao Subarifas! 🌸
           </h1>
+          <img 
+            src="/subarifa_logo.PNG" 
+            alt="Subarifas Logo" 
+            className="mx-auto h-48 mb-8 animate-fadeIn" 
+          />
           <p className="text-xl text-warmGray max-w-2xl mx-auto mb-12 animate-fadeIn">
             Participe de rifas incríveis e concorra a prêmios maravilhosos!
             Escolha seus números da sorte e boa sorte! ✨
