@@ -1,11 +1,16 @@
 import { Elysia } from 'elysia';
 import jwt from '@elysiajs/jwt';
 
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET not set in environment variables. Using default (INSECURE).');
+}
+
 export const authMiddleware = new Elysia()
   .use(
     jwt({
       name: 'jwt',
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
+      exp: '24h', // Token expires in 24 hours
     })
   )
   .derive(async (context) => {

@@ -9,26 +9,66 @@ const api = axios.create({
   },
 });
 
-// Add token to requests if available
-api.interceptors.request.use((config) => {
+// CSRF token management
+let csrfToken: string | null = null;
+let sessionId: string | null = null;
+
+// Fetch CSRF token on initialization
+async function fetchCsrfToken() {
+  try {
+    const response = await axios.get(`${API_URL}/api/csrf-token`);
+    csrfToken = response.data.csrfToken;
+    sessionId = response.data.sessionId;
+  } catch (error) {
+    console.error('Failed to fetch CSRF token:', error);
+  }
+}
+
+// Initialize CSRF token
+fetchCsrfToken();
+
+// Add token and CSRF to requests
+api.interceptors.request.use(async (config) => {
   const token = localStorage.getItem('admin_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Add CSRF token for state-changing operations
+  if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase() || '')) {
+    if (!csrfToken) {
+      await fetchCsrfToken();
+    }
+    if (csrfToken && sessionId) {
+      config.headers['X-CSRF-Token'] = csrfToken;
+      config.headers['X-Session-Id'] = sessionId;
+    }
+  }
+  
   return config;
 });
 
-// Parse JSON string responses
-api.interceptors.response.use((response) => {
-  if (typeof response.data === 'string') {
-    try {
-      response.data = JSON.parse(response.data);
-    } catch (e) {
-      // If parsing fails, leave as string
+// Handle CSRF token expiration
+api.interceptors.response.use(
+  (response) => {
+    if (typeof response.data === 'string') {
+      try {
+        response.data = JSON.parse(response.data);
+      } catch (e) {
+        // If parsing fails, leave as string
+      }
     }
+    return response;
+  },
+  async (error) => {
+    // If CSRF error, refresh token and retry
+    if (error.response?.status === 403 && error.response?.data?.message?.includes('CSRF')) {
+      await fetchCsrfToken();
+      return api.request(error.config);
+    }
+    return Promise.reject(error);
   }
-  return response;
-});
+);
 
 // Raffle API
 export const raffleAPI = {

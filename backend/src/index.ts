@@ -8,6 +8,10 @@ import { receiptRoutes } from './routes/receipts';
 import { adminRoutes } from './routes/admin';
 import { eventBus } from './utils/events';
 import { startExpirationJob } from './jobs/expiration-job';
+import { securityHeaders } from './middleware/security-headers';
+import { sanitizationMiddleware } from './middleware/sanitization';
+import { csrfProtection } from './middleware/csrf';
+import { auditMiddleware } from './middleware/audit';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,6 +28,11 @@ await connectDB();
 startExpirationJob();
 
 const app = new Elysia()
+  // Security middleware
+  .use(securityHeaders)
+  .use(sanitizationMiddleware)
+  .use(csrfProtection)
+  .use(auditMiddleware)
   // .use(websocket())
   .use(
     cors({

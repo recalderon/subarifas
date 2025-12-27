@@ -2,7 +2,9 @@ import { Elysia, t } from 'elysia';
 import jwt from '@elysiajs/jwt';
 import { Admin } from '../db/models/Admin';
 import { Selection } from '../db/models/Selection';
+import { AuditLog } from '../db/models/AuditLog';
 import { authMiddleware } from '../middleware/auth';
+import { createAuditLog, getIpAddress, getUserAgent } from '../utils/audit';
 import bcrypt from 'bcrypt';
 
 export const adminRoutes = new Elysia({ prefix: '/api/admin' })
@@ -10,6 +12,7 @@ export const adminRoutes = new Elysia({ prefix: '/api/admin' })
     jwt({
       name: 'jwt',
       secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
+      exp: '24h', // Token expires in 24 hours
     })
   )
 
@@ -34,6 +37,27 @@ export const adminRoutes = new Elysia({ prefix: '/api/admin' })
       const token = await jwt.sign({
         id: admin._id,
         username: admin.username,
+      });
+
+      // Log successful login
+      const headers: Record<string, string | undefined> = {};
+      (context as any).request.headers.forEach((value: string, key: string) => {
+        headers[key] = value;
+      });
+      
+      await createAuditLog({
+        action: 'login',
+        resource: 'admin',
+        userId: admin._id.toString(),
+        username: admin.username,
+        ipAddress: getIpAddress(headers),
+        userAgent: getUserAgent(headers),
+        method: 'POST',
+        path: '/api/admin/login',
+        statusCode: 200,
+        metadata: {
+          success: true,
+        },
       });
 
       return {
@@ -125,5 +149,43 @@ export const adminRoutes = new Elysia({ prefix: '/api/admin' })
         }
 
         return selection;
+      })
+
+      // Get audit logs (admin only)
+      .get('/audit-logs', async ({ query }) => {
+        const page = parseInt(query.page as string) || 1;
+        const limit = parseInt(query.limit as string) || 50;
+        const skip = (page - 1) * limit;
+
+        const filter: any = {};
+        
+        if (query.resource) {
+          filter.resource = query.resource;
+        }
+        if (query.action) {
+          filter.action = query.action;
+        }
+        if (query.userId) {
+          filter.userId = query.userId;
+        }
+
+        const [logs, total] = await Promise.all([
+          AuditLog.find(filter)
+            .sort({ timestamp: -1 })
+            .limit(limit)
+            .skip(skip)
+            .lean(),
+          AuditLog.countDocuments(filter),
+        ]);
+
+        return {
+          logs,
+          pagination: {
+            page,
+            limit,
+            total,
+            pages: Math.ceil(total / limit),
+          },
+        };
       })
   );
