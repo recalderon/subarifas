@@ -34,12 +34,13 @@ api.interceptors.response.use((response) => {
 export const raffleAPI = {
   getAll: () => api.get('/api/raffles'),
   getById: (id: string) => api.get(`/api/raffles/${id}`),
+  getWinner: (id: string) => api.get(`/api/raffles/${id}/winner`),
   getAvailable: (id: string, page: number) => 
     api.get(`/api/raffles/${id}/available?page=${page}`),
   create: (data: any) => api.post('/api/raffles', data),
   update: (id: string, data: any) => api.put(`/api/raffles/${id}`, data),
-  updateStatus: (id: string, status: 'open' | 'waiting' | 'closed') => 
-    api.patch(`/api/raffles/${id}/status`, { status }),
+  updateStatus: (id: string, status: 'open' | 'waiting' | 'closed', winningReceiptId?: string) => 
+    api.patch(`/api/raffles/${id}/status`, { status, winningReceiptId }),
   delete: (id: string) => api.delete(`/api/raffles/${id}`),
   downloadCSV: (id: string) => api.get(`/api/raffles/${id}/csv`, { responseType: 'blob' }),
 };

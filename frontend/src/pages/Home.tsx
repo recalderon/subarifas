@@ -36,6 +36,7 @@ const Home: React.FC = () => {
   };
 
   const activeRaffles = raffles.filter(r => r.status === 'open');
+  const closedRaffles = raffles.filter(r => r.status === 'closed');
 
   return (
     <div className="min-h-screen bg-summer bg-wave">
@@ -104,6 +105,20 @@ const Home: React.FC = () => {
           </div>
         )}
       </section>
+
+      {/* Closed Raffles Section */}
+      {!loading && !error && closedRaffles.length > 0 && (
+        <section className="container mx-auto px-4 pb-16">
+          <h2 className="text-3xl font-display font-bold text-warmGray text-center mb-12">
+            Rifas Encerradas
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {closedRaffles.map((raffle) => (
+              <RaffleCard key={raffle._id} raffle={raffle} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

@@ -72,6 +72,10 @@ const AdminDashboard: React.FC = () => {
   const [receipts, setReceipts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const [raffleToClose, setRaffleToClose] = useState<any>(null);
+  const [selectedWinnerReceipt, setSelectedWinnerReceipt] = useState<string>('');
+  const [paidReceipts, setPaidReceipts] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -144,6 +148,27 @@ const AdminDashboard: React.FC = () => {
       newStatus = 'waiting';
     } else if (currentStatus === 'waiting') {
       newStatus = 'closed';
+      // When closing, need to select winner
+      const raffle = raffles.find(r => r._id === id);
+      if (raffle) {
+        // Load paid receipts for this raffle
+        try {
+          const response = await receiptAPI.getByRaffle(id);
+          const paid = response.data.filter((r: any) => r.status === 'paid');
+          if (paid.length === 0) {
+            alert('Não há recibos pagos para esta rifa');
+            return;
+          }
+          setPaidReceipts(paid);
+          setRaffleToClose(raffle);
+          setSelectedWinnerReceipt('');
+          setShowWinnerModal(true);
+          return;
+        } catch (err) {
+          alert('Erro ao carregar recibos');
+          return;
+        }
+      }
     } else {
       newStatus = 'open';
     }
@@ -153,6 +178,26 @@ const AdminDashboard: React.FC = () => {
       loadRaffles();
     } catch (err) {
       alert('Erro ao atualizar status');
+    }
+  };
+
+  const confirmCloseRaffle = async () => {
+    if (!selectedWinnerReceipt) {
+      alert('Selecione um recibo vencedor');
+      return;
+    }
+    
+    if (!raffleToClose) return;
+    
+    try {
+      await raffleAPI.updateStatus(raffleToClose._id, 'closed', selectedWinnerReceipt);
+      setShowWinnerModal(false);
+      setRaffleToClose(null);
+      setSelectedWinnerReceipt('');
+      setPaidReceipts([]);
+      loadRaffles();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Erro ao encerrar rifa');
     }
   };
 
@@ -647,6 +692,88 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Winner Selection Modal */}
+        {showWinnerModal && raffleToClose && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="card-glass max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-display font-bold text-warmGray">
+                  Selecionar Recibo Vencedor
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowWinnerModal(false);
+                    setRaffleToClose(null);
+                    setSelectedWinnerReceipt('');
+                    setPaidReceipts([]);
+                  }}
+                  className="btn btn-outline"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              <p className="text-warmGray-light mb-4">
+                Selecione o recibo vencedor para encerrar a rifa <strong>{raffleToClose.title}</strong>
+              </p>
+
+              <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
+                {paidReceipts.map((receipt: any) => (
+                  <label
+                    key={receipt._id}
+                    className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      selectedWinnerReceipt === receipt._id
+                        ? 'border-coral bg-coral/10'
+                        : 'border-warmGray-light/20 hover:border-coral/50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="winnerReceipt"
+                      value={receipt._id}
+                      checked={selectedWinnerReceipt === receipt._id}
+                      onChange={(e) => setSelectedWinnerReceipt(e.target.value)}
+                      className="w-5 h-5 text-coral"
+                    />
+                    <div className="flex-1">
+                      <div className="font-semibold text-warmGray">
+                        {formatReceiptId(receipt.receiptId)}
+                      </div>
+                      <div className="text-sm text-warmGray-light">
+                        {receipt.name} - {receipt.whatsapp}
+                      </div>
+                      <div className="text-xs text-warmGray-light">
+                        Números: {receipt.selections?.map((s: any) => s.number).join(', ')}
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={confirmCloseRaffle}
+                  disabled={!selectedWinnerReceipt}
+                  className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FontAwesomeIcon icon={faTrophy} className="mr-2" />
+                  Confirmar e Encerrar
+                </button>
+                <button
+                  onClick={() => {
+                    setShowWinnerModal(false);
+                    setRaffleToClose(null);
+                    setSelectedWinnerReceipt('');
+                    setPaidReceipts([]);
+                  }}
+                  className="btn btn-outline flex-1"
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
           </div>

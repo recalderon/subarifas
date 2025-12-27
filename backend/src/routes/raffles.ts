@@ -60,6 +60,46 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
     return raffle.toJSON();
   })
 
+  .get('/:id/winner', async ({ params: { id }, set }) => {
+    const raffle = await Raffle.findById(id);
+    
+    if (!raffle) {
+      set.status = 404;
+      return { error: 'Raffle not found' };
+    }
+
+    if (!raffle.winningReceiptId) {
+      set.status = 404;
+      return { error: 'No winner selected for this raffle' };
+    }
+
+    // Get the winning receipt
+    const receipt = await Receipt.findOne({ receiptId: raffle.winningReceiptId });
+    
+    if (!receipt) {
+      set.status = 404;
+      return { error: 'Winning receipt not found' };
+    }
+
+    // Get selections for this receipt
+    const selections = await Selection.find({ receiptId: raffle.winningReceiptId })
+      .sort({ number: 1 });
+
+    // Return redacted winner info (hide sensitive data)
+    return {
+      receiptId: receipt.receiptId,
+      numbers: selections.map(s => s.number),
+      // Don't expose full contact info to public
+      user: {
+        xHandle: receipt.user.xHandle ? '***' : undefined,
+        instagramHandle: receipt.user.instagramHandle ? '***' : undefined,
+        whatsapp: receipt.user.whatsapp ? '***' : undefined,
+      },
+      totalAmount: receipt.totalAmount,
+      paidAt: receipt.paidAt,
+    };
+  })
+
   .get('/:id/available', async ({ params: { id }, query, set }) => {
     const raffle = await Raffle.findById(id);
     
@@ -260,13 +300,23 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
           return { error: 'Raffle not found' };
         }
 
+        // When closing a raffle, require winningReceiptId
+        if (body.status === 'closed' && !body.winningReceiptId) {
+          set.status = 400;
+          return { error: 'winningReceiptId is required when closing a raffle' };
+        }
+
         raffle.status = body.status;
+        if (body.winningReceiptId) {
+          raffle.winningReceiptId = body.winningReceiptId;
+        }
         await raffle.save();
 
         return raffle;
       }, {
         body: t.Object({
           status: t.Union([t.Literal('open'), t.Literal('waiting'), t.Literal('closed')]),
+          winningReceiptId: t.Optional(t.String()),
         }),
       })
 

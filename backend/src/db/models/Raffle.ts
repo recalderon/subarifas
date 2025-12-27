@@ -12,6 +12,7 @@ export interface IRaffle extends Document {
   pixKey: string;
   pixQRCode?: string;
   winnerNumber?: number;
+  winningReceiptId?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -73,6 +74,10 @@ const RaffleSchema = new Schema<IRaffle>(
       type: Number,
       min: 1,
       max: 100,
+    },
+    winningReceiptId: {
+      type: String,
+      required: false,
     },
   },
   {
