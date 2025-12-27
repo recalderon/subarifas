@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCheckCircle, faTicketAlt, faCalendarAlt, faUser, faShareAlt
 } from '@fortawesome/free-solid-svg-icons';
-
+import { faWhatsapp, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { selectionAPI, receiptAPI } from '../services/api';
 import { formatReceiptId } from '../utils/receiptId';
 
@@ -16,7 +16,6 @@ const Receipt: React.FC = () => {
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -37,9 +36,6 @@ const Receipt: React.FC = () => {
         console.error('Data is not an array:', response.data);
         // Handle case where data might be wrapped
         setSelections(response.data.selections || []);
-        if (response.data.receipt?.expiresAt) {
-          setExpiresAt(response.data.receipt.expiresAt);
-        }
       }
     } catch (err) {
       console.error('Error loading receipt:', err);
@@ -113,7 +109,14 @@ const Receipt: React.FC = () => {
     });
   };
 
-
+  const getContactIcon = (type: string) => {
+    switch (type) {
+      case 'whatsapp': return faWhatsapp;
+      case 'instagram': return faInstagram;
+      case 'x': return faTwitter;
+      default: return faUser;
+    }
+  };
 
   // Use shared formatter
 
@@ -158,7 +161,11 @@ const Receipt: React.FC = () => {
                 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">CONTATO</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">CONTATO PRINCIPAL</p>
+                    <p className="text-sm font-bold text-gray-700 flex items-center capitalize">
+                      <FontAwesomeIcon icon={getContactIcon(user.preferredContact)} className="mr-2 text-gray-400" />
+                      {user.preferredContact}
+                    </p>
                   </div>
                   
                   {user.whatsapp && (
@@ -280,11 +287,6 @@ const Receipt: React.FC = () => {
                   NÚMEROS RESERVADOS POR 10 MINUTOS.<br/>
                   APÓS ISSO SERÃO DISPONIBILIZADOS PARA SELEÇÃO NOVAMENTE
                 </p>
-                {expiresAt && (
-                  <p className="text-xs text-red-500 font-bold mt-2">
-                    EXPIRA EM: {formatDate(expiresAt)}
-                  </p>
-                )}
               </div>
             </div>
           </div>
