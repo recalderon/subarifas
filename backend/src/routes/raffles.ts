@@ -1,6 +1,7 @@
 import { Elysia, t } from 'elysia';
 import { Raffle } from '../db/models/Raffle';
 import { Selection } from '../db/models/Selection';
+import { Receipt } from '../db/models/Receipt';
 import { authMiddleware } from '../middleware/auth';
 import { hasRaffleEnded } from '../utils/datetime';
 
@@ -81,14 +82,13 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       return { error: 'Winning receipt not found' };
     }
 
-    // Get selections for this receipt
-    const selections = await Selection.find({ receiptId: raffle.winningReceiptId })
-      .sort({ number: 1 });
+    // Extract numbers from receipt (already stored there)
+    const numbers = receipt.numbers.map(n => n.number).sort((a, b) => a - b);
 
     // Return redacted winner info (hide sensitive data)
     return {
       receiptId: receipt.receiptId,
-      numbers: selections.map(s => s.number),
+      numbers: numbers,
       // Don't expose full contact info to public
       user: {
         xHandle: receipt.user.xHandle ? '***' : undefined,
