@@ -740,16 +740,26 @@ const AdminDashboard: React.FC = () => {
                       className="w-5 h-5 text-coral"
                     />
                     <div className="flex-1">
-                      <div className="font-semibold text-warmGray">
+                      <div className="font-semibold text-warmGray mb-2">
                         {formatReceiptId(receipt.receiptId)}
                       </div>
-                      <div className="text-sm text-warmGray-light">
+                      <div className="text-sm text-warmGray-light mb-3">
                         {receipt.user?.xHandle && `X: @${receipt.user.xHandle} `}
                         {receipt.user?.instagramHandle && `IG: @${receipt.user.instagramHandle} `}
                         {receipt.user?.whatsapp && `Tel: ${receipt.user.whatsapp}`}
                       </div>
-                      <div className="text-xs text-warmGray-light">
-                        Números: {receipt.numbers?.map((n: any) => n.number).join(', ') || 'N/A'}
+                      <div className="mb-1">
+                        <span className="text-xs font-semibold text-warmGray uppercase tracking-wider">Números:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {receipt.numbers?.map((n: any) => (
+                          <div
+                            key={n.number}
+                            className="px-3 py-1 bg-gradient-to-br from-coral to-peach text-white rounded-lg font-bold text-sm shadow-sm"
+                          >
+                            {n.number}
+                          </div>
+                        )) || <span className="text-xs text-warmGray-light">N/A</span>}
                       </div>
                     </div>
                   </label>
