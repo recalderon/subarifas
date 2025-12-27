@@ -744,10 +744,12 @@ const AdminDashboard: React.FC = () => {
                         {formatReceiptId(receipt.receiptId)}
                       </div>
                       <div className="text-sm text-warmGray-light">
-                        {receipt.name} - {receipt.whatsapp}
+                        {receipt.user?.xHandle && `X: @${receipt.user.xHandle} `}
+                        {receipt.user?.instagramHandle && `IG: @${receipt.user.instagramHandle} `}
+                        {receipt.user?.whatsapp && `Tel: ${receipt.user.whatsapp}`}
                       </div>
                       <div className="text-xs text-warmGray-light">
-                        Números: {receipt.selections?.map((s: any) => s.number).join(', ')}
+                        Números: {receipt.numbers?.map((n: any) => n.number).join(', ') || 'N/A'}
                       </div>
                     </div>
                   </label>
