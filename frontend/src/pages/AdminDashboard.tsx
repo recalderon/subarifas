@@ -76,6 +76,7 @@ const AdminDashboard: React.FC = () => {
   const [raffleToClose, setRaffleToClose] = useState<any>(null);
   const [selectedWinnerReceipt, setSelectedWinnerReceipt] = useState<string>('');
   const [paidReceipts, setPaidReceipts] = useState<any[]>([]);
+  const [winnerSearchQuery, setWinnerSearchQuery] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -195,6 +196,7 @@ const AdminDashboard: React.FC = () => {
       setRaffleToClose(null);
       setSelectedWinnerReceipt('');
       setPaidReceipts([]);
+      setWinnerSearchQuery('');
       loadRaffles();
     } catch (err: any) {
       alert(err.response?.data?.error || 'Erro ao encerrar rifa');
@@ -710,6 +712,7 @@ const AdminDashboard: React.FC = () => {
                     setRaffleToClose(null);
                     setSelectedWinnerReceipt('');
                     setPaidReceipts([]);
+                    setWinnerSearchQuery('');
                   }}
                   className="btn btn-outline"
                 >
@@ -721,8 +724,24 @@ const AdminDashboard: React.FC = () => {
                 Selecione o recibo vencedor para encerrar a rifa <strong>{raffleToClose.title}</strong>
               </p>
 
+              {/* Search Box */}
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Buscar por ID do recibo..."
+                  value={winnerSearchQuery}
+                  onChange={(e) => setWinnerSearchQuery(e.target.value)}
+                  className="input w-full"
+                />
+              </div>
+
               <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
-                {paidReceipts.map((receipt: any) => (
+                {paidReceipts
+                  .filter((receipt: any) => {
+                    if (!winnerSearchQuery) return true;
+                    return receipt.receiptId.toLowerCase().includes(winnerSearchQuery.toLowerCase());
+                  })
+                  .map((receipt: any) => (
                   <label
                     key={receipt._id}
                     className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
