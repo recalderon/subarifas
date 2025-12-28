@@ -1,4 +1,5 @@
 import { Elysia } from 'elysia';
+import { swagger } from '@elysiajs/swagger';
 import { cors } from '@elysiajs/cors';
 // import { websocket } from '@elysiajs/websocket';
 import { connectDB } from './db/connection';
@@ -34,6 +35,29 @@ startExpirationJob();
 startCleanupScheduler();
 
 const app = new Elysia()
+  // API Documentation
+  .use(swagger({
+    documentation: {
+      info: {
+        title: 'Subarifas API Documentation',
+        version: '1.0.0',
+        description: 'API documentation for the Subarifas raffle management system'
+      },
+      tags: [
+        { name: 'Raffles', description: 'Raffle management endpoints' },
+        { name: 'Selections', description: 'Number selection endpoints' },
+        { name: 'Receipts', description: 'Payment receipt endpoints' },
+        { name: 'Admin', description: 'Admin authentication and management' },
+        { name: 'CSRF', description: 'CSRF token management' }
+      ],
+      servers: [
+        {
+          url: 'http://localhost:3000',
+          description: 'Development server'
+        }
+      ]
+    }
+  }))
   // Security middleware
   .use(securityHeaders)
   .use(sanitizationMiddleware)
@@ -148,5 +172,6 @@ console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.por
 console.log(`
 🚀 Subarifas Backend is running!
 📍 URL: http://localhost:${PORT}
+📚 API Docs: http://localhost:${PORT}/swagger
 🌸 Summer calm vibes enabled
 `);
