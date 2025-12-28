@@ -6,9 +6,12 @@ import { sendReceiptToTelegram } from '../services/telegram';
 export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
   // Get all receipts for a raffle
   .get('/:raffleId', async ({ params: { raffleId } }) => {
+    // Use lean() and select only needed raffle fields
     const receipts = await Receipt.find({ raffleId })
-      .populate('raffleId')
-      .sort({ createdAt: -1 });
+      .populate('raffleId', 'title price')
+      .select('-__v')
+      .sort({ createdAt: -1 })
+      .lean();
 
     return receipts;
   })
@@ -16,14 +19,16 @@ export const receiptRoutes = new Elysia({ prefix: '/api/receipts' })
   // Get single receipt details
   .get('/detail/:receiptId', async ({ params: { receiptId }, set }) => {
     const receipt = await Receipt.findOne({ receiptId })
-      .populate('raffleId');
+      .populate('raffleId')
+      .select('-__v')
+      .lean();
 
     if (!receipt) {
       set.status = 404;
       return { error: 'Receipt not found' };
     }
 
-    return receipt.toObject();
+    return receipt;
   })
 
   // Upload receipt

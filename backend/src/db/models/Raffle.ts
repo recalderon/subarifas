@@ -85,4 +85,10 @@ const RaffleSchema = new Schema<IRaffle>(
   }
 );
 
+// Performance indexes
+RaffleSchema.index({ status: 1, endDate: -1 }); // Query open/waiting raffles sorted by date
+RaffleSchema.index({ status: 1, createdAt: -1 }); // Admin dashboard queries
+RaffleSchema.index({ winningReceiptId: 1 }, { sparse: true }); // Winner lookup
+RaffleSchema.index({ title: 'text', description: 'text' }); // Text search
+
 export const Raffle = mongoose.model<IRaffle>('Raffle', RaffleSchema);

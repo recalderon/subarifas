@@ -8,6 +8,7 @@ import { hasRaffleEnded } from '../utils/datetime';
 export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
   // Public routes
   .get('/', async () => {
+    // Optimized aggregation with projection to reduce data transfer
     const raffles = await Raffle.aggregate([
       { $sort: { createdAt: -1 } },
       {
@@ -28,10 +29,11 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       },
       {
         $project: {
-          selectionStats: 0
+          selectionStats: 0,
+          __v: 0 // Remove version key
         }
       }
-    ]);
+    ]).allowDiskUse(true); // Allow disk use for large aggregations
     
     return raffles.map(r => {
       const totalNumbers = r.totalNumbers || 100;
@@ -51,18 +53,24 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
   })
 
   .get('/:id', async ({ params: { id }, set }) => {
-    const raffle = await Raffle.findById(id);
+    // Use lean() to get plain object instead of Mongoose document (faster)
+    const raffle = await Raffle.findById(id)
+      .select('-__v') // Exclude version key
+      .lean();
     
     if (!raffle) {
       set.status = 404;
       return { error: 'Raffle not found' };
     }
 
-    return raffle.toJSON();
+    return raffle;
   })
 
   .get('/:id/winner', async ({ params: { id }, set }) => {
-    const raffle = await Raffle.findById(id);
+    // Use lean() and only select needed field
+    const raffle = await Raffle.findById(id)
+      .select('winningReceiptId')
+      .lean();
     
     if (!raffle) {
       set.status = 404;
@@ -74,8 +82,10 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       return { error: 'No winner selected for this raffle' };
     }
 
-    // Get the winning receipt
-    const receipt = await Receipt.findOne({ receiptId: raffle.winningReceiptId });
+    // Get the winning receipt with only needed fields
+    const receipt = await Receipt.findOne({ receiptId: raffle.winningReceiptId })
+      .select('receiptId numbers user.xHandle user.instagramHandle user.whatsapp totalAmount paidAt')
+      .lean();
     
     if (!receipt) {
       set.status = 404;
@@ -101,7 +111,10 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
   })
 
   .get('/:id/available', async ({ params: { id }, query, set }) => {
-    const raffle = await Raffle.findById(id);
+    // Only fetch totalNumbers field
+    const raffle = await Raffle.findById(id)
+      .select('totalNumbers')
+      .lean();
     
     if (!raffle) {
       set.status = 404;
@@ -116,11 +129,13 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       return { error: 'Invalid page number' };
     }
 
-    // Get all selections for this raffle and page
+    // Get all selections for this raffle and page with lean()
     const selections = await Selection.find({ 
       raffleId: id,
       pageNumber: page 
-    }).select('number');
+    })
+    .select('number')
+    .lean();
 
     // Calculate the range of numbers for this page
     const startNumber = (page - 1) * 100 + 1;

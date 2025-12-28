@@ -30,16 +30,16 @@ const AuditLogSchema = new Schema<IAuditLog>(
     resource: {
       type: String,
       required: true,
-      index: true,
+      // index: true, // Removed - part of compound indexes below
       // e.g., 'raffle', 'receipt', 'admin', 'selection'
     },
     resourceId: {
       type: String,
-      index: true,
+      // index: true, // Removed - part of compound indexes below
     },
     userId: {
       type: String,
-      index: true,
+      // index: true, // Removed - part of compound indexes below
     },
     username: {
       type: String,
@@ -72,7 +72,7 @@ const AuditLogSchema = new Schema<IAuditLog>(
     timestamp: {
       type: Date,
       default: Date.now,
-      index: true,
+      // index: true, // Removed - defined explicitly below with TTL
     },
   },
   {
@@ -80,9 +80,11 @@ const AuditLogSchema = new Schema<IAuditLog>(
   }
 );
 
-// Index for efficient querying
-AuditLogSchema.index({ resource: 1, resourceId: 1, timestamp: -1 });
-AuditLogSchema.index({ userId: 1, timestamp: -1 });
-AuditLogSchema.index({ action: 1, timestamp: -1 });
+// Performance indexes
+AuditLogSchema.index({ resource: 1, resourceId: 1, timestamp: -1 }); // Resource history
+AuditLogSchema.index({ userId: 1, timestamp: -1 }); // User activity
+AuditLogSchema.index({ action: 1, timestamp: -1 }); // Action timeline
+AuditLogSchema.index({ timestamp: -1 }); // Recent logs
+AuditLogSchema.index({ timestamp: 1 }, { expireAfterSeconds: 7776000 }); // TTL - delete after 90 days
 
 export const AuditLog = mongoose.model<IAuditLog>('AuditLog', AuditLogSchema);

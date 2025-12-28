@@ -10,13 +10,19 @@ import generateReceiptId from '../utils/generateReceiptId';
 export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   .get('/receipt/:receiptId', async ({ params: { receiptId }, set }) => {
     console.log(`Fetching receipt: ${receiptId}`);
+    // Use lean() and only populate needed raffle fields
     const selections = await Selection.find({ receiptId })
-      .populate('raffleId', 'title description endDate pixName pixKey pixQRCode price')
-      .sort({ number: 1 });
+      .populate('raffleId', 'title description endDate pixName pixKey pixQRCode price -_id')
+      .select('-__v')
+      .sort({ number: 1 })
+      .lean();
 
     console.log(`Found ${selections?.length} selections for receipt ${receiptId}`);
 
-    const receipt = await Receipt.findOne({ receiptId });
+    // Use lean() for receipt query
+    const receipt = await Receipt.findOne({ receiptId })
+      .select('-__v')
+      .lean();
 
     if (!selections || selections.length === 0) {
       console.log('Receipt not found');
@@ -61,8 +67,11 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
   })
 
   .get('/:raffleId', async ({ params: { raffleId }, set }) => {
+    // Use lean() to get plain objects
     const selections = await Selection.find({ raffleId })
-      .sort({ pageNumber: 1, number: 1 });
+      .select('-__v')
+      .sort({ pageNumber: 1, number: 1 })
+      .lean();
 
     return selections;
   })
@@ -76,8 +85,10 @@ export const selectionRoutes = new Elysia({ prefix: '/api/selections' })
         return { error: 'At least one contact method (X, Instagram, or WhatsApp) is required' };
       }
 
-      // Check if raffle exists
-      const raffle = await Raffle.findById(raffleId);
+      // Check if raffle exists - only fetch needed fields
+      const raffle = await Raffle.findById(raffleId)
+        .select('status endDate totalNumbers price expirationHours')
+        .lean();
       
       if (!raffle) {
         set.status = 404;

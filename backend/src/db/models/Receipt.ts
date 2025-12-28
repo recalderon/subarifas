@@ -51,19 +51,19 @@ const ReceiptSchema = new Schema<IReceipt>(
       type: String,
       required: true,
       unique: true,
-      index: true,
+      // index: true, // Removed - defined explicitly below
     },
     raffleId: {
       type: Schema.Types.ObjectId,
       ref: 'Raffle',
       required: true,
-      index: true,
+      // index: true, // Removed - part of compound indexes below
     },
     status: {
       type: String,
       enum: ['waiting_payment', 'receipt_uploaded', 'paid', 'expired'],
       default: 'waiting_payment',
-      index: true,
+      // index: true, // Removed - part of compound indexes below
     },
     numbers: [{
       number: {
@@ -107,7 +107,7 @@ const ReceiptSchema = new Schema<IReceipt>(
     expiresAt: {
       type: Date,
       required: true,
-      index: true,
+      // index: true, // Removed - part of compound indexes below
     },
     paidAt: {
       type: Date,
@@ -119,7 +119,10 @@ const ReceiptSchema = new Schema<IReceipt>(
   }
 );
 
-// Index for finding expired receipts
-ReceiptSchema.index({ status: 1, expiresAt: 1 });
+// Performance indexes
+// Note: receiptId unique constraint already creates an index
+ReceiptSchema.index({ raffleId: 1, status: 1, createdAt: -1 }); // Raffle receipts by status and date
+ReceiptSchema.index({ raffleId: 1, receiptId: 1 }); // Specific receipt in raffle
+ReceiptSchema.index({ status: 1, expiresAt: 1 }); // Expired receipts cleanup
 
 export const Receipt = mongoose.model<IReceipt>('Receipt', ReceiptSchema);

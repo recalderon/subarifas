@@ -8,6 +8,8 @@ import { receiptRoutes } from './routes/receipts';
 import { adminRoutes } from './routes/admin';
 import { eventBus } from './utils/events';
 import { startExpirationJob } from './jobs/expiration-job';
+import { startCleanupScheduler } from './jobs/cleanup-job';
+import { setupQueryMonitoring, getDatabaseStats } from './utils/performance';
 import { securityHeaders } from './middleware/security-headers';
 import { sanitizationMiddleware } from './middleware/sanitization';
 import { csrfProtection } from './middleware/csrf';
@@ -24,8 +26,12 @@ const FRONTEND_URL = (process.env.FRONTEND_URL || 'http://localhost:5173').repla
 // Connect to MongoDB
 await connectDB();
 
+// Setup performance monitoring
+setupQueryMonitoring();
+
 // Start background jobs
 startExpirationJob();
+startCleanupScheduler();
 
 const app = new Elysia()
   // Security middleware

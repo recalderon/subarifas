@@ -5,6 +5,7 @@ import { Selection } from '../db/models/Selection';
 import { AuditLog } from '../db/models/AuditLog';
 import { authMiddleware } from '../middleware/auth';
 import { createAuditLog, getIpAddress, getUserAgent } from '../utils/audit';
+import { getDatabaseStats, analyzeIndexUsage } from '../utils/performance';
 import bcrypt from 'bcrypt';
 
 export const adminRoutes = new Elysia({ prefix: '/api/admin' })
@@ -187,5 +188,17 @@ export const adminRoutes = new Elysia({ prefix: '/api/admin' })
             pages: Math.ceil(total / limit),
           },
         };
+      })
+
+      // Get database statistics (admin only)
+      .get('/db-stats', async () => {
+        const stats = await getDatabaseStats();
+        return stats;
+      })
+
+      // Get index usage analysis (admin only)
+      .get('/index-analysis', async () => {
+        const analysis = await analyzeIndexUsage();
+        return analysis;
       })
   );
