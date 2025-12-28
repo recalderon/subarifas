@@ -39,6 +39,7 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [winnerInfo, setWinnerInfo] = useState<WinnerInfo | null>(null);
   const [loadingWinner, setLoadingWinner] = useState(false);
+  const [winnerError, setWinnerError] = useState<string | null>(null);
   
   const endDate = new Date(raffle.endDate);
   const isExpired = new Date() > endDate;
@@ -53,14 +54,19 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
     e.preventDefault();
     e.stopPropagation();
     setShowWinnerModal(true);
+    setWinnerError(null);
     
     if (!winnerInfo && isClosed) {
       setLoadingWinner(true);
       try {
+        console.log('Fetching winner for raffle:', raffle._id);
         const response = await raffleAPI.getWinner(raffle._id);
+        console.log('Winner response:', response.data);
         setWinnerInfo(response.data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error loading winner:', err);
+        const errorMsg = err.response?.data?.error || 'Erro ao carregar informações do ganhador';
+        setWinnerError(errorMsg);
       } finally {
         setLoadingWinner(false);
       }
@@ -168,6 +174,19 @@ const RaffleCard: React.FC<RaffleCardProps> = ({ raffle }) => {
               <div className="py-8">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-coral border-t-transparent"></div>
                 <p className="mt-4 text-warmGray-light">Carregando...</p>
+              </div>
+            ) : winnerError ? (
+              <div className="py-8">
+                <p className="text-red-500 mb-4">{winnerError}</p>
+                <button
+                  onClick={() => {
+                    setWinnerError(null);
+                    handleWinnerClick({ preventDefault: () => {}, stopPropagation: () => {} } as any);
+                  }}
+                  className="btn btn-secondary"
+                >
+                  Tentar Novamente
+                </button>
               </div>
             ) : winnerInfo ? (
               <>

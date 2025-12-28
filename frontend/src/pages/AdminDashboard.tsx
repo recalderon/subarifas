@@ -745,7 +745,7 @@ const AdminDashboard: React.FC = () => {
                   <label
                     key={receipt._id}
                     className={`flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      selectedWinnerReceipt === receipt._id
+                      selectedWinnerReceipt === receipt.receiptId
                         ? 'border-coral bg-coral/10'
                         : 'border-warmGray-light/20 hover:border-coral/50'
                     }`}
@@ -753,8 +753,8 @@ const AdminDashboard: React.FC = () => {
                     <input
                       type="radio"
                       name="winnerReceipt"
-                      value={receipt._id}
-                      checked={selectedWinnerReceipt === receipt._id}
+                      value={receipt.receiptId}
+                      checked={selectedWinnerReceipt === receipt.receiptId}
                       onChange={(e) => setSelectedWinnerReceipt(e.target.value)}
                       className="w-5 h-5 text-coral"
                     />

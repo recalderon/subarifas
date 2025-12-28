@@ -67,10 +67,14 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
   })
 
   .get('/:id/winner', async ({ params: { id }, set }) => {
+    console.log(`[Winner Request] Raffle ID: ${id}`);
+    
     // Use lean() and only select needed field
     const raffle = await Raffle.findById(id)
       .select('winningReceiptId')
       .lean();
+    
+    console.log(`[Winner Request] Raffle found:`, raffle);
     
     if (!raffle) {
       set.status = 404;
@@ -82,10 +86,14 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
       return { error: 'No winner selected for this raffle' };
     }
 
+    console.log(`[Winner Request] Looking for receipt with receiptId: ${raffle.winningReceiptId}`);
+    
     // Get the winning receipt with only needed fields
     const receipt = await Receipt.findOne({ receiptId: raffle.winningReceiptId })
       .select('receiptId numbers user.xHandle user.instagramHandle user.whatsapp totalAmount paidAt')
       .lean();
+    
+    console.log(`[Winner Request] Receipt found:`, receipt ? 'Yes' : 'No');
     
     if (!receipt) {
       set.status = 404;
@@ -94,6 +102,8 @@ export const raffleRoutes = new Elysia({ prefix: '/api/raffles' })
 
     // Extract numbers from receipt (already stored there)
     const numbers = receipt.numbers.map(n => n.number).sort((a, b) => a - b);
+
+    console.log(`[Winner Request] Returning winner with ${numbers.length} numbers`);
 
     // Return redacted winner info (hide sensitive data)
     return {
